@@ -1,12 +1,20 @@
 package com.example.springsecurityexample.member.service;
 
+import com.example.springsecurityexample.member.Authority;
+import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.dto.ProfileRequest;
 import com.example.springsecurityexample.member.dto.ProfileResponse;
+import com.example.springsecurityexample.member.repository.MemberRepository;
 import com.example.springsecurityexample.member.repository.ProfileRepository;
+import com.example.springsecurityexample.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 
 @Service
 @Transactional
@@ -14,7 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final MemberRepository memberRepository;
 
+    public ProfileResponse createProfile(ProfileRequest request) throws Exception {
+
+        Profile profile = Profile.builder()
+                .nickname(request.getNickname())
+                .instruction(request.getInstruction())
+                .personalLink(request.getPersonalLink())
+                .build();
+
+
+        profileRepository.save(profile);
+        return convertToResponse(profile);
+    }
 
     public ProfileResponse getProfile(Long id) {
         Profile profile = profileRepository.findById(id).orElse(null);
@@ -26,14 +47,6 @@ public class ProfileService {
         return convertToResponse(profile);
     }
 
-    public ProfileResponse createProfile(ProfileRequest request) {
-        // ProfileRequest DTO를 Profile 엔티티로 변환
-        Profile profile = convertToEntity(request);
-        // Profile 엔티티를 데이터베이스에 저장
-        Profile savedProfile = profileRepository.save(profile);
-        // 저장된 프로필 엔티티를 ProfileResponse DTO로 변환
-        return convertToResponse(savedProfile);
-    }
 
     public ProfileResponse updateProfile(Long id, ProfileRequest request) {
         Profile profile = profileRepository.findById(id).orElse(null);
