@@ -1,7 +1,9 @@
 package com.example.springsecurityexample.member.controller;
 
+import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.dto.ProfileRequest;
 import com.example.springsecurityexample.member.dto.ProfileResponse;
+import com.example.springsecurityexample.member.dto.SignResponse;
 import com.example.springsecurityexample.member.repository.ProfileRepository;
 import com.example.springsecurityexample.member.service.ProfileService;
 import lombok.RequiredArgsConstructor;
@@ -12,33 +14,45 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/profile")
 public class ProfileController {
 
-    private final ProfileRepository profileRepository;
     private final ProfileService profileService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProfileResponse> getProfile(@PathVariable Long id) {
-        ProfileResponse profile = profileService.getProfile(id);
+    @PostMapping("/profile/{memberId}")
+    public ResponseEntity<Profile> createOrUpdateProfile(@PathVariable Long memberId, @RequestBody ProfileRequest profileRequest) {
+        Profile profile = profileService.createOrUpdateProfile(memberId, profileRequest);
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<ProfileResponse> createProfile(@RequestBody ProfileRequest request) {
-        ProfileResponse profile = profileService.createProfile(request);
-        return new ResponseEntity<>(profile, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ProfileResponse> updateProfile(@PathVariable Long id, @RequestBody ProfileRequest request) {
-        ProfileResponse profile = profileService.updateProfile(id, request);
+    @GetMapping("/profile/{memberId}")
+    public ResponseEntity<Profile> getProfileByMemberId(@PathVariable Long memberId) {
+        Profile profile = profileService.getProfileByMemberId(memberId);
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
-        profileService.deleteProfile(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @GetMapping("/profile/{content}/{id}")
+    public ResponseEntity<String> getProfileContentById(@PathVariable String content, @PathVariable Long id) {
+        Profile profile = profileService.getProfileByMemberId(id);
+
+        if (profile == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        String result = "";
+
+        switch (content) {
+            case "nickname":
+                result = profile.getNickname();
+                break;
+            case "major":
+                result = profile.getMember().getMajor();
+                break;
+            // 여기에 다른 원하는 정보에 대한 case를 추가할 수 있습니다.
+
+            default:
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

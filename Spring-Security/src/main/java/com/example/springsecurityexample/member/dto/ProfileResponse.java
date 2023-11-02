@@ -1,10 +1,11 @@
 package com.example.springsecurityexample.member.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
-@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProfileResponse {
     private Long id;
     private String nickname;

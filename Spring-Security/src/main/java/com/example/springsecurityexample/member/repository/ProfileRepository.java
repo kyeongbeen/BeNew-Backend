@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Transactional
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
-
+    Optional<Profile> findByMember(Member member);
 }

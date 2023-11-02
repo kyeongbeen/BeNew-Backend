@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .antMatchers("/register", "/login").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasRole("USER")
+                .antMatchers("/profile/**").hasRole("USER")
                 .anyRequest().denyAll()
                 .and()
                 // JWT 인증 필터 적용
@@ -78,7 +79,7 @@ public class SecurityConfig {
                         response.setContentType("text/html; charset=UTF-8");
                         response.getWriter().write("권한이 없는 사용자입니다.");
                     }
-                })
+                  })
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {

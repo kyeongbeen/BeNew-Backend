@@ -2,6 +2,7 @@ package com.example.springsecurityexample.member.service;
 
 import com.example.springsecurityexample.member.Authority;
 import com.example.springsecurityexample.member.Member;
+import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.dto.SignRequest;
 import com.example.springsecurityexample.member.dto.SignResponse;
 import com.example.springsecurityexample.member.repository.MemberRepository;
@@ -22,6 +23,7 @@ public class SignService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final ProfileService profileService;
 
     public SignResponse login(SignRequest request) throws Exception {
         Member member = memberRepository.findByAccount(request.getAccount()).orElseThrow(() ->
@@ -64,6 +66,13 @@ public class SignService {
             member.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
 
             memberRepository.save(member);
+
+            // 프로필 생성
+            Profile profile = Profile.builder()
+                    .nickname(request.getNickname()) // 또는 다른 프로필 필드 초기화
+                    .member(member)
+                    .build();
+            profileService.createProfile(member.getId(), profile);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("잘못된 요청입니다.");
