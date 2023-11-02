@@ -20,7 +20,7 @@ public class ProfileController {
 
     @PostMapping("/profile/{memberId}")
     public ResponseEntity<Profile> createOrUpdateProfile(@PathVariable Long memberId, @RequestBody ProfileRequest profileRequest) {
-        Profile profile = profileService.createOrUpdateProfile(memberId, profileRequest);
+        Profile profile = profileService.UpdateProfile(memberId, profileRequest);
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 

@@ -38,7 +38,6 @@ public class SignService {
                 .account(member.getAccount())
                 .name(member.getName())
                 .email(member.getEmail())
-                .nickname(member.getNickname())
                 .birthday(member.getBirthday())
                 .phoneNumber(member.getPhoneNumber())
                 .gender(member.getGender())
@@ -54,7 +53,6 @@ public class SignService {
             Member member = Member.builder()
                     .account(request.getAccount())
                     .password(passwordEncoder.encode(request.getPassword()))
-                    .nickname(request.getNickname())
                     .name(request.getName())
                     .email(request.getEmail())
                     .birthday(request.getBirthday())
@@ -69,7 +67,6 @@ public class SignService {
 
             // 프로필 생성
             Profile profile = Profile.builder()
-                    .nickname(request.getNickname()) // 또는 다른 프로필 필드 초기화
                     .member(member)
                     .build();
             profileService.createProfile(member.getId(), profile);

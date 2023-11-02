@@ -13,8 +13,6 @@ public class SignRequest {
 
     private String password;
 
-    private String nickname;
-
     private String name;
 
     private String email;

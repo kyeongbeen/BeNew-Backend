@@ -24,8 +24,6 @@ public class Member {
 
     private String password;
 
-    private String nickname;
-
     private String name;
 
     @Column(unique = true)

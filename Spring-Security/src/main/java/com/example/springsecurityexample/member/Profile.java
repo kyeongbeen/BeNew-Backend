@@ -29,7 +29,6 @@ public class Profile {
     private Member member;
 
     public Profile(Member member) {
-        this.nickname = member.getNickname();
         this.member = member;
     }
 }
