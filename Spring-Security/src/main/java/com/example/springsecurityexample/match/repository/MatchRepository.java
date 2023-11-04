@@ -7,7 +7,7 @@ import java.util.List;
 
 //@Primary
 
-public interface MatchRepository extends JpaRepository<Match, Integer> {
-    List<Match> findAllByUid1AndMatchingRequestIsFalse(int Uid1);
-    List<Match> findAllByUid1AndUid2(int Uid1, int Uid2);
+public interface MatchRepository extends JpaRepository<Match, Long> {
+    List<Match> findAllByUid1AndMatchingRequestIsFalse(Long Uid1);
+    List<Match> findAllByUid1AndUid2(Long Uid1, Long Uid2);
 }

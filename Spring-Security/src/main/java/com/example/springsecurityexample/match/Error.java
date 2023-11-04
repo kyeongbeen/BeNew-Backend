@@ -1,13 +1,9 @@
 package com.example.springsecurityexample.match;
 
-import lombok.Getter;
-
-@Getter
-public class DeleteResultResponse {
+public class Error {
     private boolean isSuccess;
     private String message;
-
-    public DeleteResultResponse(boolean isSuccess, String message) {
+    public Error(boolean isSuccess, String message) {
         this.isSuccess = isSuccess;
         this.message = message;
     }

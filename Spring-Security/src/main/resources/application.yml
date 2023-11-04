@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://demologin2.c8a58wttwocm.ap-northeast-2.rds.amazonaws.com:5432/jwtlogin
-    username: benew
-    password: ehdfyrkehofk
+    url: jdbc:postgresql://127.0.0.1:5432/ #jdbc:postgresql://demologin2.c8a58wttwocm.ap-northeast-2.rds.amazonaws.com:5432/jwtlogin
+    username: test #benew
+    password: tjqm1@2! #ehdfyrkehofk
   redis:
     host: localhost
     port: 5432

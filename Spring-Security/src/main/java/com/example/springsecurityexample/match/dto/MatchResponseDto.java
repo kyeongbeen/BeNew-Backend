@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchResponseDto {
-    private Integer matchId;
-    private int uid1;// replace uid
-    private int uid2;// replace matchingId
+    private Long matchId;
+    private Long uid1;// replace uid
+    private Long uid2;// replace matchingId
     private Boolean isUid2Team;
     private LocalDateTime matchingDate;
     private Boolean matchingRequest;

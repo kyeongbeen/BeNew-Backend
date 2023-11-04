@@ -1,10 +1,11 @@
 package com.example.springsecurityexample.match;
 
+import com.example.springsecurityexample.member.Member;
+import com.example.springsecurityexample.member.Profile;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Builder
@@ -15,15 +16,18 @@ import java.time.LocalDateTime;
 @Entity
 public class Match {
     @Id @GeneratedValue
-    private Integer matchId;
-    private int uid1;// replace uid
-    private int uid2;// replace matchingId
+    private Long matchId;
+    private Long uid1;// replace uid
+    private Long uid2;// replace matchingId
     private Boolean isUid2Team;
     private LocalDateTime matchingDate;
     private Boolean matchingRequest;
     private Boolean matchSuccess;
 
+    @ManyToOne
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private Profile profile;
 
-//    @ManyToOne
-//    private Account manager;
+
+    //TODO : update() - isUid2Team field
 }

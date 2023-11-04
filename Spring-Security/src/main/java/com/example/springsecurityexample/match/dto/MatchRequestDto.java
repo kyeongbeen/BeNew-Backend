@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchRequestDto {
-    private int uid1;
+    private Long uid1;
 }
