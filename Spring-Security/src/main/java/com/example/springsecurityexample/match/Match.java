@@ -30,4 +30,10 @@ public class Match {
 
 
     //TODO : update() - isUid2Team field
+    public void update(){
+        if(false) // team table 생성되면 조건문 변경
+            this.isUid2Team = true;
+        else
+            this.isUid2Team = false;
+    }
 }

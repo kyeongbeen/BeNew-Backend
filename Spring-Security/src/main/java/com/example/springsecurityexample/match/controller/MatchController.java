@@ -55,9 +55,10 @@ public class MatchController {
 
     /* create match - POST*/
     @PostMapping("/post/match")
-    public ResponseEntity CreateMatch(@RequestBody MatchRequestDto matchRequestDto) {
-        //TODO : 에러 관련 코드 추가
-        //TODO : 필터링 기능
+    public ResponseEntity CreateMatch(@RequestBody MatchRequestDto matchRequestDto/*, 기술 스택 dto 파라미터*/) {
+        //TODO : 에러 관련 코드 추가(하는 중)
+        //TODO : 필터링 기능 (후 순위)
+
 
         if (matchRequestDto.getUid1() == null) { //uid1 body에 담아서 요청했는지 확인
               return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -71,11 +72,18 @@ public class MatchController {
                     ));
         }
 
-//        if(memberRepository.findById(userId) == null) //uid1이 존재하는 유저인지 확인/ DB에 값 있어야 확인 가능함.
+        if(matchService.RecommendUser(matchRequestDto) == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Error(false, "더 이상 만들 수 있는 매칭 유져가 없습니다." +
+                            "(추후 추가 예정임) 추천할 유저의 점수 범위를 늘려주세요."));
+
+//        if(memberRepository.findById(userId) == null) //uid1이 존재하는 유저인지 확인/ member table 필요
 //        {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND)
 //                    .body(new DeleteResultResponse(false, "uid1 is not founded"));
 //        }
+
+
 
         MatchResponseDto newMatch = matchService.RecommendUser(matchRequestDto);
         Match match = modelMapper.map(newMatch, Match.class);
@@ -117,7 +125,7 @@ public class MatchController {
             matchRepository.deleteById(matchId);
             return ResponseEntity
                     .ok(new Error(true, "success"));
-                    //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경
+                    //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경(후 순위)
         } catch (EntityNotFoundException ex) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
