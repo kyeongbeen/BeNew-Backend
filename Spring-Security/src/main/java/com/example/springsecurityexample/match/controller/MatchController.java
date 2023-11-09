@@ -135,7 +135,6 @@ public class MatchController {
             matchRepository.deleteById(matchId);
             return ResponseEntity
                     .ok(new Error(true, "success"));
-            //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경(후 순위)
         } catch (EntityNotFoundException ex) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
