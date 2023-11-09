@@ -7,6 +7,8 @@ import com.example.springsecurityexample.match.repository.MatchRepository;
 import com.example.springsecurityexample.match.service.MatchService;
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.security.CustomUserDetails;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
@@ -53,7 +55,10 @@ public class MatchController {
         else return null;
     }
 
-    /* create match - POST*/
+    @ApiOperation(
+            value = "매칭 생성"
+            , notes = "json을 통해 받은 사용자의 ID와 원하는 점수범위를 통해 매칭을 생성한다.\n" +
+            "참고 : 샘플 데이터가 없어 현재는 0~100 사이 랜덤한 uid2를 생성합니다.")
     @PostMapping("/post/match")
     public ResponseEntity CreateMatch(@RequestBody MatchRequestDto matchRequestDto/*, 기술 스택 dto 파라미터*/) {
         //TODO : 에러 관련 코드 추가(하는 중)
@@ -61,7 +66,7 @@ public class MatchController {
 
 
         if (matchRequestDto.getUid1() == null) { //uid1 body에 담아서 요청했는지 확인
-              return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new Error(false, "Uid1 parameter is null in body"));
         }
         if (!Objects.equals(matchRequestDto.getUid1(), GetLoginUserId())) {
@@ -106,10 +111,12 @@ public class MatchController {
         return ResponseEntity.created(createdUri).body(matchResource);
     }
 
-    /* get user's matching info list - GET*/
+    @ApiOperation(
+            value = "사용자 매칭 조회"
+            , notes = "URI를 통해 받은 사용자의 ID로 사용자의 매칭 리스트를 조회한다.")
     @GetMapping("/get/match/{id}")
     public ResponseEntity ReadUserMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
-         List<Match> matchUsers = matchService.GetMatchingList(id);
+        List<Match> matchUsers = matchService.GetMatchingList(id);
         if (matchUsers.isEmpty()) { //TODO:서비스에서 처리해야 의미있는 코드가 됨.
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new Error(false, "uid1's matching is not founded"));
@@ -117,7 +124,10 @@ public class MatchController {
         return ResponseEntity.ok(matchUsers);
     }
 
-    /* delete failure match - DELETE*/
+    @ApiOperation(
+            value = "매칭 삭제"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭을 삭제한다. " +
+            "\n매칭이 성사되고 팀이 만들어진 후 또는 매칭을 거절하는 경우 사용 권장")
     @DeleteMapping("/delete/match/{matchId}")
     public ResponseEntity DeleteMatch(@PathVariable Long matchId){
         //TODO : 트렌젝션 관련 오류 처리 공부
@@ -125,7 +135,7 @@ public class MatchController {
             matchRepository.deleteById(matchId);
             return ResponseEntity
                     .ok(new Error(true, "success"));
-                    //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경(후 순위)
+            //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경(후 순위)
         } catch (EntityNotFoundException ex) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -133,8 +143,10 @@ public class MatchController {
         }
     }
 
-    //상대방이 매칭 수락 시 matchSuccess = true
-    /* update successful match - PATCH*/
+    @ApiOperation(
+            value = "매칭 성사"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 true로 변경" +
+            "\n매칭 성사 시 사용 권장.")
     @PatchMapping("/patch/match/success/{matchId}")
     public ResponseEntity UpdateMatchStatus(@PathVariable Long matchId){
         Optional<Match> matchOptional = matchRepository.findById(matchId);
@@ -152,8 +164,10 @@ public class MatchController {
         }
     }
 
-    // 사용자가 매칭 상대에게 매칭 요청을 보낼 때 likeByUid1 = true
-    /* like to another user - PATCH*/
+    @ApiOperation(
+            value = "매칭 요청"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 요청 여부를 저장하는 칼럼을 true로 변경" +
+            "\n매칭 요청 시 사용 권장.")
     @PatchMapping("/patch/match/like/{matchId}")
     public ResponseEntity LikeMatch(@PathVariable Long matchId){
         Optional<Match> matchOptional = matchRepository.findById(matchId);
