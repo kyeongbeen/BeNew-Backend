@@ -3,6 +3,7 @@ package com.example.springsecurityexample.projectProfileCard.controller;
 import com.example.springsecurityexample.projectProfileCard.ProjectProfileCard;
 import com.example.springsecurityexample.projectProfileCard.dto.ProjectProfileCardRequestDto;
 import com.example.springsecurityexample.projectProfileCard.repository.ProjectProfileCardRepository;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
