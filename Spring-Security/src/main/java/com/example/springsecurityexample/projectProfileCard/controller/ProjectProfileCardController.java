@@ -63,6 +63,7 @@ public class ProjectProfileCardController {
     @PatchMapping("/patch/project-profile-card/{projectId}")
     public ResponseEntity ReadProjectProfileCard (@PathVariable Integer projectId,
                                                   @RequestBody ProjectProfileCardRequestDto projectProfileCardRequestDto) throws SQLException
+
     {
         ProjectProfileCard card = projectProfileCardRepository.findById(projectId)
                 .orElseThrow(() -> new NullPointerException("해당 아이디가 존재하지 않습니다."));

@@ -60,13 +60,19 @@ public class SecurityConfig {
                 .and()
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
+<<<<<<< HEAD
+                .antMatchers("/register", "/login").permitAll()
+                .antMatchers("/ws/chat").permitAll()
+=======
                 //swagger 추가
                 .antMatchers("/register", "/login","/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+>>>>>>> origin/main
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/**").hasRole("USER")
                 .antMatchers("/profile/**").hasRole("USER")
                 .antMatchers("/api/**").hasRole("USER")
                 .antMatchers("/alarms/**").hasRole("USER")
+                .antMatchers("/chat/**").hasRole("USER")
                 .anyRequest().denyAll()
                 .and()
                 // JWT 인증 필터 적용
