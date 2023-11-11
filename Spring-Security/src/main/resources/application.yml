@@ -9,6 +9,10 @@ spring:
     port: 5432
   resources:
     static-locations: classpath:/new-static-location/
+    
+logging:
+  level:
+    org.springframework: DEBUG
 
   mvc: # for swagger
     path match:
