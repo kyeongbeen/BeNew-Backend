@@ -7,6 +7,8 @@ spring:
   redis:
     host: localhost
     port: 5432
+  resources:
+    static-locations: classpath:/new-static-location/
 
   mvc: # for swagger
     path match:
@@ -25,8 +27,4 @@ spring:
 jwt:
   secret:
     key: x!A%D*G-KaPdSgVkYp3s5v8y/B?E(H+M
-
-spring:
-  resources:
-    static-locations: classpath:/new-static-location/
 
