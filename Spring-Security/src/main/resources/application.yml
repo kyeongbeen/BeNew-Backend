@@ -11,8 +11,8 @@ spring:
     static-locations: classpath:/new-static-location/
     
 logging:
-  level:
-    org.springframework: DEBUG
+  file: /path/to/log/file.log
+
 
   mvc: # for swagger
     path match:
