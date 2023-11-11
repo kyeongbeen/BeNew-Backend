@@ -57,6 +57,5 @@ public class SwaggerConfig {
     private ApiKey securityScheme() {
         String targetHeader = "Authorization";
         return new ApiKey("JWT", "Authorization", "header");
-
     }
 }
