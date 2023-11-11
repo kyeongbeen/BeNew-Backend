@@ -9,10 +9,6 @@ spring:
     port: 5432
   resources:
     static-locations: classpath:/new-static-location/
-    
-logging:
-  file: /path/to/log/file.log
-
 
   mvc: # for swagger
     path match:
