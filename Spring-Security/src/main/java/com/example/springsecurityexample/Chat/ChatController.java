@@ -22,7 +22,8 @@ public class ChatController {
     }
 
     @GetMapping(path="/rooms/{userId}/roomId/{roomId}")
-    @ApiOperation("userId, roomId에 해당하는 채팅방을 보여준다")
+    @ApiOperation("userId, roomId에 해당하는 채팅방을 보여준다" +
+            "\n 반드시 rooms/{userId} 요청을 보낸 후 사용해야 함")
     public ChatRoom findRoom(@PathVariable("roomId") String roomId) {
         return service.findRoom(roomId);
     }
