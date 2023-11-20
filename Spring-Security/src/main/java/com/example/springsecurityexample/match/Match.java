@@ -2,6 +2,7 @@ package com.example.springsecurityexample.match;
 
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
@@ -24,9 +25,9 @@ public class Match {
     private Boolean matchingRequest;
     private Boolean matchSuccess;
 
-    @ManyToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private Profile profile;
+//    @ManyToOne(cascade = CascadeType.PERSIST)
+//    @JoinColumn(name = "uid2", referencedColumnName = "member_id")
+//    private Profile profile;
 
 
     //TODO : update() - isUid2Team field
@@ -36,4 +37,5 @@ public class Match {
         else
             this.isUid2Team = false;
     }
+
 }
