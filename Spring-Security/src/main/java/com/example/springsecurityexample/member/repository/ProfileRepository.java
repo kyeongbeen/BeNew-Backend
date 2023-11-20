@@ -10,4 +10,7 @@ import java.util.Optional;
 @Transactional
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByMember(Member member);
+
+    Optional<Profile> findByMember_Account(String userId);
+
 }

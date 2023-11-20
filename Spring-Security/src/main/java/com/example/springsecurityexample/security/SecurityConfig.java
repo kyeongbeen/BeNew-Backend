@@ -74,6 +74,8 @@ public class SecurityConfig {
                 .antMatchers("/alarms/**").hasRole("USER")
                 .antMatchers("/chat/**").hasRole("USER")
                 .antMatchers("/vote/**").hasRole("USER")
+                .antMatchers("/technologies/**").hasRole("USER")
+                .antMatchers("/technology-levels/**").hasRole("USER")
                 .anyRequest().denyAll()
                 .and()
                 // JWT 인증 필터 적용
