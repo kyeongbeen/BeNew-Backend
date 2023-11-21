@@ -35,6 +35,8 @@ public class Member {
 
     private String major;
 
+    private String token;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default
     private List<Authority> roles = new ArrayList<>();
@@ -43,4 +45,5 @@ public class Member {
         this.roles = role;
         role.forEach(o -> o.setMember(this));
     }
+
 }
