@@ -25,24 +25,42 @@ public class TodoService {
                 .todoType(todoDto.getTodoType())
                 .title(todoDto.getTitle())
                 .content(todoDto.getContent())
+                .status(true)
                 .build();
         Todo newTodo = todoRepository.save(todo);
         return newTodo;
     }
 
     public List<Todo> GetTodoListByUserId (Long userId){
-        List<Todo> TodoList = todoRepository.findAllByUserId(userId);
-        return TodoList;
+        return todoRepository.findAllByUserId(userId);
     }
 
     public Todo GetTodoByTodoId (Long todoId) {
-        Optional<Todo> todo = todoRepository.findById(todoId);
-        if (todo.isPresent()) {
-            Todo newTodo = todo.get();
-            todoRepository.save(newTodo);
-            return newTodo;
-        } else return null;
+        return todoRepository.findByTodoId(todoId);
     }
 
+    public Todo endTodo(Long todoId) {
+        Todo todo = todoRepository.findByTodoId(todoId);
+        todo.setStatus(false);
+        return todo;
+    }
 
+    public Todo deleteTodo(Long todoId) {
+        return todoRepository.deleteVoteByTodoId(todoId);
+
+    }
+
+    public Todo modifyTodo(Long todoId, TodoDto todoDto) {
+        Todo newTodo = Todo.builder()
+                .todoId(todoId)
+                .projectId(todoDto.getProjectId())
+                .userId(todoDto.getUserId())
+                .todoType(todoDto.getTodoType())
+                .title(todoDto.getTitle())
+                .content(todoDto.getContent())
+                .status(todoDto.isStatus())
+                .build();
+        todoRepository.save(newTodo);
+        return newTodo;
+    }
 }

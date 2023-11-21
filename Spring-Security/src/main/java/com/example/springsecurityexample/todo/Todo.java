@@ -22,4 +22,5 @@ public class Todo {
     private TodoType todoType = TodoType.PERSONAL;
     private String title;
     private String content;
+    private boolean status;
 }
