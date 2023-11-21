@@ -32,6 +32,9 @@ public class SignService {
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
+        String token = jwtProvider.createToken(member.getAccount(), member.getRoles());
+        // Member 객체에 토큰 저장
+        member.setToken(token);
 
         return SignResponse.builder()
                 .id(member.getId())
@@ -43,9 +46,8 @@ public class SignService {
                 .gender(member.getGender())
                 .major(member.getMajor())
                 .roles(member.getRoles())
-                .token(jwtProvider.createToken(member.getAccount(), member.getRoles()))
+                .token(token)
                 .build();
-
     }
 
     public boolean register(SignRequest request) throws Exception {
@@ -82,5 +84,4 @@ public class SignService {
                 .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
         return new SignResponse(member);
     }
-
 }

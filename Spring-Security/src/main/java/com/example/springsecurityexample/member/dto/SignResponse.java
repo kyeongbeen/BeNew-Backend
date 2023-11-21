@@ -2,6 +2,7 @@ package com.example.springsecurityexample.member.dto;
 
 import com.example.springsecurityexample.member.Authority;
 import com.example.springsecurityexample.member.Member;
+import com.example.springsecurityexample.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import java.util.List;
 @Getter
 @Builder @AllArgsConstructor @NoArgsConstructor
 public class SignResponse {
-
     private Long id;
 
     private String account;
@@ -46,5 +46,6 @@ public class SignResponse {
         this.phoneNumber=member.getPhoneNumber();
         this.gender = member.getGender();
         this.major=member.getMajor();
+        this.token=member.getToken();
     }
 }
