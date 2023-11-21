@@ -15,7 +15,6 @@ import java.util.List;
 @Getter
 @Builder @AllArgsConstructor @NoArgsConstructor
 public class SignResponse {
-    private JwtProvider jwtProvider;
     private Long id;
 
     private String account;
