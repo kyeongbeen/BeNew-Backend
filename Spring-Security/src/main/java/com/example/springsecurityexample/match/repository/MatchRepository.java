@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findAllByUid1AndMatchingRequestIsFalse(Long Uid1);
-    Optional<Match> findByUid1AndUid2(Long Uid1, Long Uid2);
+    Optional<Match> findByUid1AndProfile_Id(Long Uid1, Long Uid2);
 }

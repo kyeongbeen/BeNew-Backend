@@ -35,11 +35,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping(value = "/api", produces = MediaTypes.HAL_JSON_VALUE)
 public class MatchController {
 
-    private final MatchRepository matchRepository;
     private final MatchService matchService;
-    private final ModelMapper modelMapper;
-    private final MemberRepository memberRepository;
-    private final ProfileService profileService;
 
     // 사용 중인 user Id 찾아오기.
     Long GetLoginUserId () {
@@ -57,10 +53,9 @@ public class MatchController {
 
     @ApiOperation(
             value = "매칭 생성"
-            , notes = "json을 통해 받은 사용자의 ID와 원하는 점수범위를 통해 매칭을 생성한다.\n" +
-            "참고 : 샘플 데이터가 없어 현재는 0~100 사이 랜덤한 uid2를 생성합니다.")
+            , notes = "json을 통해 받은 사용자의 ID를 통해 매칭을 생성한다.\n")
     @PostMapping("/post/match")
-    public ResponseEntity<MatchResource> CreateMatch(@RequestBody MatchRequestDto matchRequestDto/*, 기술 스택 dto 파라미터*/) {
+    public ResponseEntity<MatchResource> CreateMatch(@RequestBody MatchRequestDto matchRequestDto) {
         //TODO : 에러 관련 코드 추가(하는 중)
         //TODO : 필터링 기능 (후 순위)
 
@@ -68,39 +63,21 @@ public class MatchController {
         if (matchRequestDto.getUid1() == null) { //uid1 body에 담아서 요청했는지 확인
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(false, "parameter is null in body"));
-//        }
 
         //다른 유저의 id로 매칭을 만드려고 하는 경우
         if (!Objects.equals(matchRequestDto.getUid1(), GetLoginUserId())) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(
-//                            false,
-//                            "다른 사용자의 매칭을 만들 수 없습니다. 현재 사용자의 id를 파라미터로 보내주세요"
-//                    ));
-//        }
 
         //매칭 생성
-        MatchResponseDto newMatch = matchService.RecommendUser(matchRequestDto);
-
-        //매칭된 유저가 없는 경우 (남은 유저가 너무 적거나 없는 경우, 프로필 카드가 없는 경우)
-        if(newMatch == null)
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(false, "더 이상 만들 수 있는 매칭 유저가 없습니다."));
-
-        Match match = modelMapper.map(newMatch, Match.class);
-        Match currentMatch = matchRepository.save(match);
+        Match match = matchService.RecommendUser(matchRequestDto);
 
         var selfLinkBuilder = linkTo(methodOn(MatchController.class).CreateMatch(matchRequestDto));
         URI createdUri = selfLinkBuilder.toUri();
-        var getUserMatchesLinkBuilder = linkTo(methodOn(MatchController.class).ReadUserMatch(currentMatch.getUid1()));
-        var updateDeleteLinkBuilder = linkTo(methodOn(MatchController.class).DeleteMatch(currentMatch.getMatchId()));
-        var updateSuccessLinkBuilder = linkTo(methodOn(MatchController.class).UpdateMatchStatus(currentMatch.getMatchId()));
-        var updateLikeLinkBuilder = linkTo(methodOn(MatchController.class).LikeMatch(currentMatch.getMatchId()));
+        var getUserMatchesLinkBuilder = linkTo(methodOn(MatchController.class).ReadUserMatch(match.getUid1()));
+        var updateDeleteLinkBuilder = linkTo(methodOn(MatchController.class).DeleteMatch(match.getMatchId()));
+        var updateSuccessLinkBuilder = linkTo(methodOn(MatchController.class).UpdateMatchStatus(match.getMatchId()));
+        var updateLikeLinkBuilder = linkTo(methodOn(MatchController.class).LikeMatch(match.getMatchId()));
 
         MatchResource matchResource = new MatchResource(match);
         matchResource.add(selfLinkBuilder.withSelfRel());
@@ -109,36 +86,31 @@ public class MatchController {
         matchResource.add(updateSuccessLinkBuilder.withRel("update successful match(patch)"));
         matchResource.add(updateLikeLinkBuilder.withRel("like to another user(patch)"));
 
-        return ResponseEntity.created(createdUri).body(matchResource);
+        return match.getProfile().getId() != null
+                ? ResponseEntity.created(createdUri).body(matchResource)
+                : ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @ApiOperation(
+            value = "사용자 매칭 조회"
+            , notes = "URI를 통해 받은 사용자의 ID로 사용자의 매칭상대의 프로필 리스트를 조회한다.")
+    @GetMapping("/get/match-profile/{id}")
+    public ResponseEntity<List<Profile>> ReadUserMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
+        List<Profile> profiles = matchService.GetMatchingUserProfileList(id);
+        return ResponseEntity
+                .status(profiles.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
+                .body(profiles.isEmpty() ? null : profiles);
     }
 
     @ApiOperation(
             value = "사용자 매칭 조회"
             , notes = "URI를 통해 받은 사용자의 ID로 사용자의 매칭 리스트를 조회한다.")
     @GetMapping("/get/match/{id}")
-    public ResponseEntity<List<Profile>> ReadUserMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
-        List<Match> matchUsers = matchService.GetMatchingList(id);
-        if (matchUsers.isEmpty()) { //TODO:서비스에서 처리해야 의미있는 코드가 됨.
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-        }
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(false, "uid1's matching is not founded"));
-//        }
-
-        //매칭 상대의 uid2를 저장
-        List<Long> uid2List = matchUsers.stream()
-                .map(Match::getUid2)
-                .collect(Collectors.toList());
-
-        // 모든 매칭 상대의 프로필 카드 리스트들을 저장
-        List<Profile> profiles = new ArrayList<>();
-        for (Long uid2 : uid2List) {
-            Profile profile = profileService.getProfileByMemberId(uid2);
-            if (profile != null) {
-                profiles.add(profile);
-            }
-        }
-        return ResponseEntity.ok(profiles);
+    public ResponseEntity<List<Match>> ReadMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
+        List<Match> Matches = matchService.GetMatchingList(id);
+        return ResponseEntity
+                .status(Matches.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
+                .body(Matches.isEmpty() ? null : Matches);
     }
 
     @ApiOperation(
@@ -147,17 +119,8 @@ public class MatchController {
             "\n매칭이 성사되고 팀이 만들어진 후 또는 매칭을 거절하는 경우 사용 권장")
     @DeleteMapping("/delete/match/{matchId}")
     public ResponseEntity<Error> DeleteMatch(@PathVariable Long matchId){
-        //TODO : 트렌젝션 관련 오류 처리 공부
-        try {
-            matchRepository.deleteById(matchId);
-            return ResponseEntity
-                    .ok(new Error(true, "success"));
-            //TODO: 좀 더 멀쩡해보이는 빌더 패턴으로 변경(후 순위)
-        } catch (EntityNotFoundException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(new Error(false, "Resource not found"));
-        }
+        Error error = matchService.DeleteMatchById(matchId);
+        return new ResponseEntity<>(error, HttpStatus.OK);
     }
 
     @ApiOperation(
@@ -166,19 +129,10 @@ public class MatchController {
             "\n매칭 성사 시 사용 권장.")
     @PatchMapping("/patch/match/success/{matchId}")
     public ResponseEntity<Match> UpdateMatchStatus(@PathVariable Long matchId){
-        Optional<Match> matchOptional = matchRepository.findById(matchId);
-
-        if (matchOptional.isPresent()) {
-            Match match = matchOptional.get();
-            match.setMatchSuccess(true);
-            matchRepository.save(match);
-            return ResponseEntity.ok(match); // 변경된 Match 객체를 반환
-        }
-        else {
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(false, "Matching not found"));
-        }
+        Match match = matchService.UpdateMatchStatusById(matchId);
+        return ResponseEntity
+                .status(match.getMatchSuccess() ? HttpStatus.OK : HttpStatus.NO_CONTENT)
+                .body(match.getMatchSuccess() ? match : null);
     }
 
     @ApiOperation(
@@ -187,18 +141,10 @@ public class MatchController {
             "\n매칭 요청 시 사용 권장.")
     @PatchMapping("/patch/match/like/{matchId}")
     public ResponseEntity<Match> LikeMatch(@PathVariable Long matchId){
-        Optional<Match> matchOptional = matchRepository.findById(matchId);
+        Match match = matchService.LikeMatchStatusById(matchId);
+        return ResponseEntity
+                .status(match.getMatchingRequest() ? HttpStatus.OK : HttpStatus.NO_CONTENT)
+                .body(match.getMatchingRequest() ? match : null);
 
-        if (matchOptional.isPresent()) {
-            Match match = matchOptional.get();
-            match.setMatchingRequest(true);
-            matchRepository.save(match);
-            return ResponseEntity.ok(match); // 변경된 Match 객체를 반환
-        }
-        else {
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new Error(false, "Matching not found"));
-        }
     }
 }

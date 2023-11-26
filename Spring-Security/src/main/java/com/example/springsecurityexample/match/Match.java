@@ -19,15 +19,14 @@ public class Match {
     @Id @GeneratedValue
     private Long matchId;
     private Long uid1;// replace uid
-    private Long uid2;// replace matchingId
     private Boolean isUid2Team;
     private LocalDateTime matchingDate;
     private Boolean matchingRequest;
     private Boolean matchSuccess;
 
-//    @ManyToOne(cascade = CascadeType.PERSIST)
-//    @JoinColumn(name = "uid2", referencedColumnName = "member_id")
-//    private Profile profile;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "uid2", referencedColumnName = "id")
+    private Profile profile;
 
 
     //TODO : update() - isUid2Team field
