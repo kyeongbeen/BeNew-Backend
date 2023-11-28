@@ -23,6 +23,7 @@ public class Profile {
     private boolean projectExperience;
     private String personalLink;
     private String photo;
+    private int peer;
 
     @OneToOne
     @JoinColumn(name = "member_id") // Member 엔티티와의 관계를 매핑

@@ -12,4 +12,5 @@ public class ProfileRequest {
     private boolean projectExperience;
     private String personalLink;
     private String photo;
+    private int peer;
 }

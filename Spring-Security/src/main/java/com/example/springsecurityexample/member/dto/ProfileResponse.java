@@ -14,4 +14,5 @@ public class ProfileResponse {
     private boolean projectExperience;
     private String personalLink;
     private String photo;
+    private int peer;
 }

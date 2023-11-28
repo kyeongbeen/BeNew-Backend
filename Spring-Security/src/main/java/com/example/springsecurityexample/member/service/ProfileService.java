@@ -46,8 +46,16 @@ public class ProfileService {
         if (profileRequest.getPersonalLink() !=null) {
             profile.setPersonalLink(profileRequest.getPersonalLink());
         }
-        if (profileRequest.getRole() != null){
-            profile.setRole(profileRequest.getRole());
+        if(profileRequest.getPhoto() !=null){
+            profile.setPhoto(profileRequest.getPhoto());
+        }
+        if( profileRequest.getPhoto() != null){
+            profile.setPeer(profileRequest.getPeer());
+        }
+        if (profileRequest.isProjectExperience()){
+            profile.setProjectExperience(true);
+        }else {
+            profile.setProjectExperience(false);
         }
         // 회원과 연결
         profile.setMember(member);
