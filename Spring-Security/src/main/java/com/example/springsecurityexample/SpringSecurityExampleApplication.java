@@ -9,6 +9,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableSwagger2
 public class SpringSecurityExampleApplication {
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
@@ -16,7 +17,5 @@ public class SpringSecurityExampleApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringSecurityExampleApplication.class, args);
-
     }
-
 }
