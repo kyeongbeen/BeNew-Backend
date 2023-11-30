@@ -39,13 +39,15 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // 특정 채팅방에 입장하면 해당
         log.info(session + " 클라이언트 접속");
+        chatroom.getSessions().add(session);
 //        chatroom.enterAction(session);
     }
 
-    /** client가 접속 시 호출되는 메서드*/
+    /** client가 퇴장 시 호출되는 메서드*/
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info(session + " 클라이언트 접속 해제");
+        chatroom.getSessions().remove(session);
 
     }
 }
