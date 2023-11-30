@@ -21,8 +21,10 @@ public class Match {
     private Long uid1;// replace uid
     private Boolean isUid2Team;
     private LocalDateTime matchingDate;
-    private Boolean matchingRequest;
-    private Boolean matchSuccess;
+    @Enumerated(EnumType.STRING)
+    private MatchRequestType matchingRequest = MatchRequestType.PENDING;
+    @Enumerated(EnumType.STRING)
+    private MatchSuccessType matchSuccess = MatchSuccessType.PENDING;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "uid2", referencedColumnName = "id")

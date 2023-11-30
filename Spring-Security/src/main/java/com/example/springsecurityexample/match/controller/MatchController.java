@@ -3,17 +3,13 @@ package com.example.springsecurityexample.match.controller;
 import com.example.springsecurityexample.match.*;
 import com.example.springsecurityexample.match.Error;
 import com.example.springsecurityexample.match.dto.*;
-import com.example.springsecurityexample.match.repository.MatchRepository;
 import com.example.springsecurityexample.match.service.MatchService;
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
-import com.example.springsecurityexample.member.repository.MemberRepository;
-import com.example.springsecurityexample.member.repository.ProfileRepository;
-import com.example.springsecurityexample.member.service.ProfileService;
+import com.example.springsecurityexample.member.controller.ProfileController;
 import com.example.springsecurityexample.security.CustomUserDetails;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -53,7 +47,7 @@ public class MatchController {
 
     @ApiOperation(
             value = "매칭 생성"
-            , notes = "json을 통해 받은 사용자의 ID를 통해 매칭을 생성한다.\n")
+            , notes = "json을 통해 받은 사용자의 정보를 통해 매칭을 생성한다.\n")
     @PostMapping("/post/match")
     public ResponseEntity<MatchResource> CreateMatch(@RequestBody MatchRequestDto matchRequestDto) {
         //TODO : 에러 관련 코드 추가(하는 중)
@@ -72,42 +66,78 @@ public class MatchController {
         //매칭 생성
         Match match = matchService.RecommendUser(matchRequestDto);
 
+        //매치 생성 실패
+        if(match == null)
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+
+
+
+        //링크 추가
         var selfLinkBuilder = linkTo(methodOn(MatchController.class).CreateMatch(matchRequestDto));
         URI createdUri = selfLinkBuilder.toUri();
-        var getUserMatchesLinkBuilder = linkTo(methodOn(MatchController.class).ReadUserMatch(match.getUid1()));
+        var getUserMatchesLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatch(match.getUid1()));
+        var getUserMatchesByProfileLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatchingPartnerProfile(match.getUid1()));
         var updateDeleteLinkBuilder = linkTo(methodOn(MatchController.class).DeleteMatch(match.getMatchId()));
-        var updateSuccessLinkBuilder = linkTo(methodOn(MatchController.class).UpdateMatchStatus(match.getMatchId()));
         var updateLikeLinkBuilder = linkTo(methodOn(MatchController.class).LikeMatch(match.getMatchId()));
+        var updateDisLikeLinkBuilder = linkTo(methodOn(MatchController.class).DislikeMatch(match.getMatchId()));
 
         MatchResource matchResource = new MatchResource(match);
         matchResource.add(selfLinkBuilder.withSelfRel());
-        matchResource.add(getUserMatchesLinkBuilder.withRel("get user's matching info list(get)"));
-        matchResource.add(updateDeleteLinkBuilder.withRel("delete failure match(delete)"));
-        matchResource.add(updateSuccessLinkBuilder.withRel("update successful match(patch)"));
-        matchResource.add(updateLikeLinkBuilder.withRel("like to another user(patch)"));
+        //matchResource.add(getUserMatchesLinkBuilder.withRel("Read match list(매칭 조회 - 반환형 : match list, get)"));
+        //matchResource.add(getUserMatchesByProfileLinkBuilder.withRel("Read matching partner profile card list(매칭 상대방 조회 - 반환형 : profile list, get)"));
+        //matchResource.add(updateDeleteLinkBuilder.withRel("Delete match(매칭 삭제, delete)"));
+        matchResource.add(updateLikeLinkBuilder.withRel("Request match(매칭 요청, patch)"));
+        matchResource.add(updateDisLikeLinkBuilder.withRel("Reject match(매칭 거절, patch)"));
 
-        return match.getProfile().getId() != null
-                ? ResponseEntity.created(createdUri).body(matchResource)
-                : ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(createdUri)
+                .body(matchResource);
     }
 
     @ApiOperation(
-            value = "사용자 매칭 조회"
+            value = "알람 기능에서 쓰면 좋을것 같아요. 매칭 id를 통한 매칭 조회(응답형식 : Match 엔티티)"
+            , notes = "알람 기능에서 쓸 수 있을까 싶어서 만들었어요.")
+    @GetMapping("/get/match-info/match/{matchId}")
+    public ResponseEntity<MatchResource> ReadMatchByMatchId(@PathVariable Long matchId) {
+        Match match = matchService.GetMatch(matchId);
+
+        //링크 생성
+        var selfLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatchByMatchId(matchId));
+        URI createdUri = selfLinkBuilder.toUri();
+        var FalseMatchLinkBuilder = linkTo(methodOn(MatchController.class).FalseMatch(matchId));
+        var SuccessMatchLinkBuilder = linkTo(methodOn(MatchController.class).SuccessMatch(matchId));
+        var GetRequesterInformation = linkTo(methodOn(ProfileController.class).getProfileByMemberId(matchId));
+
+        MatchResource matchResource = new MatchResource(match);
+        matchResource.add(selfLinkBuilder.withSelfRel());
+        matchResource.add(GetRequesterInformation.withRel("get requester's information(매칭 요청자 정보, get)"));
+        matchResource.add(FalseMatchLinkBuilder.withRel("false match(매칭 실패, patch)"));
+        matchResource.add(SuccessMatchLinkBuilder.withRel("success match(매칭 성공, patch)"));
+
+        return ResponseEntity
+                .status(match == null ? HttpStatus.NO_CONTENT : HttpStatus.CREATED)
+                .location(createdUri)
+                .body(matchResource);
+    }
+
+    @ApiOperation(
+            value = "사용자 매칭 조회(응답형식 : List<프로필>)"
             , notes = "URI를 통해 받은 사용자의 ID로 사용자의 매칭상대의 프로필 리스트를 조회한다.")
-    @GetMapping("/get/match-profile/{id}")
-    public ResponseEntity<List<Profile>> ReadUserMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
-        List<Profile> profiles = matchService.GetMatchingUserProfileList(id);
+    @GetMapping("/get/match-info/profile/{uid1}")
+    public ResponseEntity<List<Profile>> ReadMatchingPartnerProfile(@PathVariable Long uid1) {
+        List<Profile> profiles = matchService.GetMatchingUserProfileList(uid1);
         return ResponseEntity
                 .status(profiles.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
                 .body(profiles.isEmpty() ? null : profiles);
     }
 
     @ApiOperation(
-            value = "사용자 매칭 조회"
+            value = "사용자 매칭 조회(응답형식 : List<매치>)"
             , notes = "URI를 통해 받은 사용자의 ID로 사용자의 매칭 리스트를 조회한다.")
-    @GetMapping("/get/match/{id}")
-    public ResponseEntity<List<Match>> ReadMatch(@PathVariable Long id) { //계정 매개변수 있어야하나?
-        List<Match> Matches = matchService.GetMatchingList(id);
+    @GetMapping("/get/match-info/match-list/{uid1}")
+    public ResponseEntity<List<Match>> ReadMatch(@PathVariable Long uid1) { //계정 매개변수 있어야하나?
+        List<Match> Matches = matchService.GetMatchingList(uid1);
         return ResponseEntity
                 .status(Matches.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
                 .body(Matches.isEmpty() ? null : Matches);
@@ -116,7 +146,7 @@ public class MatchController {
     @ApiOperation(
             value = "매칭 삭제"
             , notes = "URI를 통해 받은 매칭 ID로 매칭을 삭제한다. " +
-            "\n매칭이 성사되고 팀이 만들어진 후 또는 매칭을 거절하는 경우 사용 권장")
+            "\n매칭 삭제는 사용할 일 없을것 같습니다")
     @DeleteMapping("/delete/match/{matchId}")
     public ResponseEntity<Error> DeleteMatch(@PathVariable Long matchId){
         Error error = matchService.DeleteMatchById(matchId);
@@ -124,27 +154,76 @@ public class MatchController {
     }
 
     @ApiOperation(
-            value = "매칭 성사"
-            , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 true로 변경" +
-            "\n매칭 성사 시 사용 권장.")
+            value = "매칭 성사(매칭 요청을 알람에서 수락)"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 SUCCESS로 변경" +
+            "\n매칭 성사 시 사용.")
     @PatchMapping("/patch/match/success/{matchId}")
-    public ResponseEntity<Match> UpdateMatchStatus(@PathVariable Long matchId){
-        Match match = matchService.UpdateMatchStatusById(matchId);
+    public ResponseEntity<Match> SuccessMatch(@PathVariable Long matchId){
+        Match match = matchService.UpdateMatchStatusIsSuccess(matchId);
         return ResponseEntity
-                .status(match.getMatchSuccess() ? HttpStatus.OK : HttpStatus.NO_CONTENT)
-                .body(match.getMatchSuccess() ? match : null);
+                .status(match.getMatchSuccess() == MatchSuccessType.SUCCESS
+                        ? HttpStatus.OK
+                        : HttpStatus.NO_CONTENT
+                )
+                .body(match.getMatchSuccess() == MatchSuccessType.PENDING
+                        ? match
+                        : null
+                );
     }
 
     @ApiOperation(
-            value = "매칭 요청"
-            , notes = "URI를 통해 받은 매칭 ID로 매칭 요청 여부를 저장하는 칼럼을 true로 변경" +
+            value = "매칭 실패(매칭 요청을 알람에서 거절)"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 FALSE로 변경" +
+            "\n매칭 실패 시 사용.")
+    @PatchMapping("/patch/match/false/{matchId}")
+    public ResponseEntity<Match> FalseMatch(@PathVariable Long matchId){
+        Match match = matchService.UpdateMatchStatusIsFalse(matchId);
+        return ResponseEntity
+                .status(match.getMatchSuccess() == MatchSuccessType.FALSE
+                        ? HttpStatus.OK
+                        : HttpStatus.NO_CONTENT
+                )
+                .body(match.getMatchSuccess() == MatchSuccessType.PENDING
+                        ? match
+                        : null
+                );
+    }
+
+    @ApiOperation(
+            value = "매칭 요청(스와이프에서 매칭을 수락하는 경우)"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 요청 여부를 저장하는 칼럼을 REQUESTED로 변경" +
             "\n매칭 요청 시 사용 권장.")
     @PatchMapping("/patch/match/like/{matchId}")
     public ResponseEntity<Match> LikeMatch(@PathVariable Long matchId){
         Match match = matchService.LikeMatchStatusById(matchId);
         return ResponseEntity
-                .status(match.getMatchingRequest() ? HttpStatus.OK : HttpStatus.NO_CONTENT)
-                .body(match.getMatchingRequest() ? match : null);
+                .status(
+                        match.getMatchingRequest() == MatchRequestType.REQUESTED
+                        ? HttpStatus.OK
+                        : HttpStatus.NO_CONTENT
+                )
+                .body(
+                        match.getMatchingRequest() == MatchRequestType.REQUESTED
+                                ? match
+                                : null
+                );
+    }
 
+    @ApiOperation(
+            value = "매칭 거절(스와이프에서 매칭을 거절하는 경우)"
+            , notes = "URI를 통해 받은 매칭 ID로 매칭 요청 여부를 저장하는 칼럼을 REJECTED로 변경" +
+            "\n매칭 거절 시 사용 권장.")
+    @PatchMapping("/patch/match/dislike/{matchId}")
+    public ResponseEntity<Match> DislikeMatch(@PathVariable Long matchId){
+        Match match = matchService.DislikeMatchStatusById(matchId);
+        return ResponseEntity
+                .status(match.getMatchingRequest() == MatchRequestType.REJECTED
+                        ? HttpStatus.OK
+                        : HttpStatus.NO_CONTENT
+                )
+                .body(match.getMatchingRequest() == MatchRequestType.REJECTED
+                        ? match
+                        : null
+                );
     }
 }
