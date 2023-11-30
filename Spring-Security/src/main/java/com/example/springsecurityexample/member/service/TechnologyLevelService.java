@@ -41,6 +41,9 @@ public class TechnologyLevelService {
         Member member = memberRepository.findByAccount(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Member not found"));
 
+        Profile profile = profileRepository.findByMember_Account(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+
         // technologyId로 기술 스택 엔터티 가져오기
         Technology technology = technologyRepository.findById(requestDTO.getTechnologyId())
                 .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
@@ -49,11 +52,37 @@ public class TechnologyLevelService {
         TechnologyLevel technologyLevel = new TechnologyLevel();
         technologyLevel.setTechnology(technology);
         technologyLevel.setMember(member);
+        technologyLevel.setProfile(profile);
         technologyLevel.setLevel(requestDTO.getLevel());
 
         // 기술 스택 레벨 저장
         technologyLevelRepository.save(technologyLevel);
     }
+
+    public void addTechnologyLevelProfile(Long userId, TechnologyLevelRequest requestDTO) {
+        // 프로필을 찾기 위해 사용자 ID로 프로필 엔터티 가져오기
+        Member member = memberRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
+
+        Profile profile = profileRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+
+        // technologyId로 기술 스택 엔터티 가져오기
+        Technology technology = technologyRepository.findById(requestDTO.getTechnologyId())
+                .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
+
+        // 기술 스택 레벨 엔터티 생성 및 설정
+        TechnologyLevel technologyLevel = new TechnologyLevel();
+        technologyLevel.setTechnology(technology);
+        technologyLevel.setMember(member);
+        technologyLevel.setProfile(profile);
+        technologyLevel.setLevel(requestDTO.getLevel());
+
+        // 기술 스택 레벨 저장
+        technologyLevelRepository.save(technologyLevel);
+    }
+
+
 
     // TechnologyLevel 저장
     public void saveTechnologyLevel(TechnologyLevel technologyLevel) {
@@ -70,6 +99,12 @@ public class TechnologyLevelService {
         // 여기에 적절한 로직을 추가하여 특정 Profile에 속한 TechnologyLevel을 조회
         // 예를 들면, technologyLevelRepository.findByProfileId(profileId) 등의 메서드 사용
         return technologyLevelRepository.findByMember_Account(account);
+    }
+
+    public List<TechnologyLevel> getTechnologyLevelsByProfileId(Long profileId) {
+        // 여기에 적절한 로직을 추가하여 특정 Profile에 속한 TechnologyLevel을 조회
+        // 예를 들면, technologyLevelRepository.findByProfileId(profileId) 등의 메서드 사용
+        return technologyLevelRepository.findByProfile_Id(profileId);
     }
 
 //    // 추가적인 메서드가 필요한 경우 여기에 작성

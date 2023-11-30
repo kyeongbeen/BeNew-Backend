@@ -23,7 +23,7 @@ public class TechnologyLevelController {
         this.technologyLevelService = technologyLevelService;
     }
     // 기술 스택 레벨 추가
-    @PostMapping("/{userId}")
+    @PostMapping("/member/{userId}")
     @ApiOperation(
             value = "account에 따른 기술 스택 레벨 추가"
             , notes = "technologyId는 TechnologyController에서 추가된 기술 id, level은 현재레벨")
@@ -34,6 +34,19 @@ public class TechnologyLevelController {
         technologyLevelService.addTechnologyLevel(userId, requestDTO);
         return new ResponseEntity<>("Technology level added successfully", HttpStatus.CREATED);
     }
+    @PostMapping("/profile/{profileId}")
+    @ApiOperation(
+            value = "profileId에 따른 기술 스택 레벨 추가"
+            , notes = "technologyId는 TechnologyController에서 추가된 기술 id, level은 현재레벨")
+    public ResponseEntity<String> addTechnologyLevelProfile(
+            @PathVariable Long profileId,
+            @RequestBody TechnologyLevelRequest requestDTO
+    ) {
+        technologyLevelService.addTechnologyLevelProfile(profileId, requestDTO);
+        return new ResponseEntity<>("Technology level added successfully", HttpStatus.CREATED);
+    }
+
+
 
     // TechnologyLevel 저장
     @PostMapping
@@ -52,10 +65,17 @@ public class TechnologyLevelController {
     }
 
     // 특정 Profile에 속한 TechnologyLevel 조회
-    @GetMapping("/profile/{account}")
+    @GetMapping("/member/{account}")
     @ApiOperation(value = "account에 따른 기술 스택 레벨 조회")
-    public ResponseEntity<List<TechnologyLevel>> getTechnologyLevelsByProfileId(@PathVariable String account) {
+    public ResponseEntity<List<TechnologyLevel>> getTechnologyLevelsByAccountId(@PathVariable String account) {
         List<TechnologyLevel> technologyLevels = technologyLevelService.getTechnologyLevelsByAccountId(account);
+        return new ResponseEntity<>(technologyLevels, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile/{profileId}")
+    @ApiOperation(value = "profileId 따른 기술 스택 레벨 조회")
+    public ResponseEntity<List<TechnologyLevel>> getTechnologyLevelsByProfileId(@PathVariable Long profileId) {
+        List<TechnologyLevel> technologyLevels = technologyLevelService.getTechnologyLevelsByProfileId(profileId);
         return new ResponseEntity<>(technologyLevels, HttpStatus.OK);
     }
 

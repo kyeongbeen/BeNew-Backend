@@ -24,5 +24,10 @@ public class TechnologyLevel {
     @JoinColumn(name = "member_account")
     private Member member;
 
+    @ManyToOne
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
+
     private int level;
 }
