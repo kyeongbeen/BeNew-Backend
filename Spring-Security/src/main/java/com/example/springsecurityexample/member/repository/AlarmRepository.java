@@ -10,4 +10,5 @@ import java.util.List;
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     List<Alarm> findByReceiverUserId_Id(Long receiverUserId);
     List<Alarm> findBySenderUserId_Id(Long senderUserId);
+    int countByReceiverUserId_Id(Long receiverUserId);
 }

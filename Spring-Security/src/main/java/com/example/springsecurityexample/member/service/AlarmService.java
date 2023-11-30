@@ -72,4 +72,8 @@ public class AlarmService {
             throw new EntityNotFoundException("Alarm not found");
         }
     }
+
+    public int getAlarmNum(Long userId) {
+        return alarmRepository.countByReceiverUserId_Id(userId);
+    }
 }
