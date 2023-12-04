@@ -67,7 +67,7 @@ public class MatchController {
         Match match = matchService.RecommendUser(matchRequestDto);
 
         //매치 생성 실패
-        if(match == null)
+        if(match.getMatchId() == null)
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 
 
@@ -116,7 +116,7 @@ public class MatchController {
         matchResource.add(SuccessMatchLinkBuilder.withRel("success match(매칭 성공, patch)"));
 
         return ResponseEntity
-                .status(match == null ? HttpStatus.NO_CONTENT : HttpStatus.CREATED)
+                .status(match == null ? HttpStatus.NO_CONTENT : HttpStatus.OK)
                 .location(createdUri)
                 .body(matchResource);
     }
@@ -199,8 +199,8 @@ public class MatchController {
         return ResponseEntity
                 .status(
                         match.getMatchingRequest() == MatchRequestType.REQUESTED
-                        ? HttpStatus.OK
-                        : HttpStatus.NO_CONTENT
+                                ? HttpStatus.OK
+                                : HttpStatus.NO_CONTENT
                 )
                 .body(
                         match.getMatchingRequest() == MatchRequestType.REQUESTED

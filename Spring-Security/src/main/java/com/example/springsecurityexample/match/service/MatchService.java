@@ -31,82 +31,66 @@ public class MatchService {
     private final ProfileRepository profileRepository;
     private static final Logger logger = LoggerFactory.getLogger(MatchService.class);
 
-    //매칭 후보자 맵 생성
-    public Map<Long, Profile> GetProfilesInSpecificRange(int minValue, int maxValue) {
-        Map<Long, Profile> profileMap = new HashMap<>();
-        Long i = 1L;
-
-        //Todo : 예외처리
-        List<Profile> profilesInRange = profileRepository.findByPeerBetween(minValue, maxValue);
-
-        for (Profile profile : profilesInRange) {
-            profileMap.put(i, profile);
-            i++;
-        }
-
-        return profileMap;
-    }
-
     //매칭 생성
     public Match RecommendUser(MatchRequestDto matchRequestDto) {
+        //사용자의 프로필 정보 가져오기
         Optional<Profile> userInfo = profileRepository.findByMember_Id(matchRequestDto.getUid1());
 
         int userPeer = 0;
-        if (userInfo.isPresent()) {
-            userPeer = userInfo.get().getPeer();
-        } else {
-            userPeer = -100;
-            // TODO: 예외처리
+        if (userInfo.isEmpty()) {
+            return Match.builder().build();
         }
 
-        Map<Long, Profile> matchingCandidates = GetProfilesInSpecificRange(userPeer - 5, userPeer + 5);
-        long memberCount = matchingCandidates.size();
+        userPeer = userInfo.get().getPeer();
+        Profile userProfile = userInfo.get();
 
-        List<Long> candidateIds = matchingCandidates.values()
-                .stream()
-                .map(Profile::getId)
-                .collect(Collectors.toList());
+
+        List<Profile> profilesInRange = profileRepository.findByPeerBetween(userPeer - 5, userPeer + 5);
+        int memberCount = profilesInRange.size();
 
         //탈출을 위한 변수
         int i = 0;
 
+
+        //매칭을 위한 랜덤 숫자
+        int randomNum = -1;
+
+        //중복 제거를 위한 배열
+        List<Integer> randomNumbers =  new ArrayList<Integer>();
+        randomNumbers.add(randomNum);
+
+        //DTO를 match 엔티티로 변경
         Match match = modelMapper.map(matchRequestDto, Match.class);
 
+        //매칭 시작
         while (true) {
-            long randomUserId; // profile card id 이다.
+            long randomUserProfileId; // profile card id 이다.
+            i = 0;
 
-            if (i >= memberCount * 2) {
-                // 매칭하기 위해 남은 유저를 찾기 힘들 때
-                return null;
-            }
-            int randomNum = (int) (Math.random() * memberCount);
-            randomUserId = candidateIds.get(randomNum);
+            do {
+                randomNum = (int) (Math.random() * memberCount);
+                i++;
+                if(i > memberCount)
+                    return Match.builder().build();
+
+            } while (randomNumbers.contains(randomNum));
+            randomNumbers.add(randomNum);
+
+            randomUserProfileId = profilesInRange.get(randomNum).getId();
 
             // 자기 자신이 매칭 상대인 경우 다시 루프 실행
-            Optional<Profile> userProfile = profileRepository.findByMember_Id(matchRequestDto.getUid1());
-            if (userProfile.isPresent()) {
-                Long id = userProfile.get().getId();
-                if (randomUserId == id) {
-                    i++;
-                    continue;
-                }
-            }
-
-            // 이미 매칭된 경우 다시 루프 실행
-            if (matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), randomUserId).isPresent()) {
-                i++;
+            if (randomUserProfileId == userProfile.getId()) {
                 continue;
             }
 
-            // 매칭 상대 확인
-            Optional<Profile> optionalProfile = Optional.ofNullable(matchingCandidates.get((long) randomNum));
-            if (optionalProfile.isEmpty()) {
-                i++;
+
+            // 이미 매칭된 경우 다시 루프 실행
+            if (matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), randomUserProfileId).isPresent()) {
                 continue;
             }
 
             // 매칭 성공, profile card 연결
-            Profile profile = optionalProfile.get();
+            Profile profile = profilesInRange.get(randomNum);
             match.setProfile(profile);
             break;
         }
