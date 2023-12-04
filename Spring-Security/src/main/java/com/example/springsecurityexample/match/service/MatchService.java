@@ -79,7 +79,7 @@ public class MatchService {
                 // 매칭하기 위해 남은 유저를 찾기 힘들 때
                 return null;
             }
-            int randomNum = (int) (Math.random() * memberCount + 1);
+            int randomNum = (int) (Math.random() * memberCount);
             randomUserId = candidateIds.get(randomNum);
 
             // 자기 자신이 매칭 상대인 경우 다시 루프 실행
