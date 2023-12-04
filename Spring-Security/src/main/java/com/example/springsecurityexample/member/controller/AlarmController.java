@@ -22,7 +22,7 @@ public class AlarmController {
     private final AlarmService alarmService;
 
     @PostMapping("/alarms")
-    @ApiOperation("알람 생성입니다아")
+    @ApiOperation("알람 생성")
     public ResponseEntity<AlarmResponse> createAlarm(@RequestBody AlarmRequest alarmRequest) {
         AlarmResponse createdAlarm = alarmService.createAlarm(alarmRequest);
         return new ResponseEntity<>(createdAlarm, HttpStatus.CREATED);
