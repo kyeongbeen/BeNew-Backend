@@ -59,7 +59,7 @@ public class MatchService {
         //자기 자신이 아니며,(AND) 매칭이 안 만들어진 경우 추천 리스트로 넣음
         for (Profile profile : profilesInRange) {
             // USER ID와 프로필 ID(업데이트를 고려해서 ID)를 통해 만들어진 매칭 찾기
-            if (matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), profile.getId()).isEmpty()
+            if (matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), profile).isEmpty()
                     && !Objects.equals(profile, userProfile)) { // 자기 자신인 프로필 카드인 경우
                 filteredProfiles.add(profile);
             }
