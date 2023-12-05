@@ -17,7 +17,7 @@ public class ChatHandler extends TextWebSocketHandler {
 
     private final ObjectMapper mapper;
     private final ChatService service;
-    private ChatRoom chatroom;
+    private ChatRoom chatroom = new ChatRoom();
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
@@ -39,8 +39,13 @@ public class ChatHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // 특정 채팅방에 입장하면 해당
         log.info(session + " 클라이언트 접속");
+<<<<<<< Updated upstream
         chatroom.getSessions().add(session);
 //        chatroom.enterAction(session);
+=======
+        //chatroom.getSessions().add(session);
+        chatroom.enterAction(session, service);
+>>>>>>> Stashed changes
     }
 
     /** client가 퇴장 시 호출되는 메서드*/

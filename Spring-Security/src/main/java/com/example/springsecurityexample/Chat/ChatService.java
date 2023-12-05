@@ -90,18 +90,48 @@ public class ChatService {
         String insertUserQuery = "select roomid, roomname from chatrooms where roomid in (select roomid from chatroomparticipants where userid = ?)";
         Object[] param = {userId};
         List<Map<String, Object>> results = jdbcTemplate.queryForList(insertUserQuery, param);
+        List<Map<String, Object>> results2 = jdbcTemplate.queryForList(insertUserQuery, param);
+
 
         // list에 담겨있는 채팅방들을 chatrooms에 roomid를 키로 저장
         chatRooms.clear();
         for (Map<String, Object> row : results) {
             String roomid = row.get("roomid").toString();
             String roomname = row.get("roomname").toString();
+
+            for(Map<String, Object> row2 : results2) {
+                String roomid2 = row.get("roomid").toString();
+                String roomname2 = row.get("roomname").toString();
+            ChatRoom chatRoom2 = new ChatRoom(roomid2, roomname2);
+
+            }
+
             ChatRoom chatRoom = new ChatRoom(roomid, roomname);
             chatRooms.put(roomid, chatRoom);
         }
         return new ArrayList<>(chatRooms.values());
     }
 
+//
+//    public List<ChatRoom> findRooms(int userId){
+//        // query로 내가 속한 채팅방들을 list에 저장
+//        String insertUserQuery = "select roomid, roomname from chatrooms where roomid in (select roomid from chatroomparticipants where userid = ?)";
+//        Object[] param = {userId};
+//        List<Map<String, Object>> results = jdbcTemplate.queryForList(insertUserQuery, param);
+//
+//        // list에 담겨있는 채팅방들을 chatrooms에 roomid를 키로 저장
+//        chatRooms.clear();
+//        for (Map<String, Object> row : results) {
+//            String roomid = row.get("roomid").toString();
+//            String roomname = row.get("roomname").toString();
+//
+//            ChatRoom chatRoom = new ChatRoom(roomid, roomname);
+//            chatRooms.put(roomid, chatRoom);
+//        }
+//        return new ArrayList<>(chatRooms.values());
+//    }
+
+    //select * from technology_level where profile_id = (select id from profile where memober_id = ?)
 
     public ChatRoom findRoom(String roomId){
         return chatRooms.get(roomId);
@@ -131,13 +161,15 @@ public class ChatService {
         for (Map<String, Object> row : results) {
             String roomid = row.get("roomid").toString();
             String message = row.get("message").toString();
-            Timestamp senddate = Timestamp.valueOf(row.get("senddate").toString());
+            String senddate = row.get("senddate").toString();
             int sender = Integer.parseInt(row.get("sender").toString());
             Object sequence = row.get("sequence");
 
             ChatDTO chatDTO = new ChatDTO(ChatDTO.MessageType.TALK, roomid, sender, message, senddate);
             chatDTOs.put(sequence, chatDTO);
         }
+
+
         return new ArrayList<>(chatDTOs.values());
     }
 
@@ -153,6 +185,14 @@ public class ChatService {
         String query= "update chatrooms set roomname = ? where roomid = ?";
         Object[] params = {roomName, roomId};
         jdbcTemplate.update(query, params);
+    }
+
+    {
+        int id;
+        int level;
+        int profile_id;
+        int technology_id;
+
     }
 }
 
