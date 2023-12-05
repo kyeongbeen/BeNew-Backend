@@ -27,7 +27,7 @@ public class Match {
     private MatchSuccessType matchSuccess = MatchSuccessType.PENDING;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "uid2", referencedColumnName = "id")
+    @JoinColumn(name = "uid2")
     private Profile profile;
 
 
