@@ -1,9 +1,6 @@
 package com.example.springsecurityexample.match;
 
-import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,9 +23,12 @@ public class Match {
     @Enumerated(EnumType.STRING)
     private MatchSuccessType matchSuccess = MatchSuccessType.PENDING;
 
+
+
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "uid2")
     private Profile profile;
+
 
 
     //TODO : update() - isUid2Team field

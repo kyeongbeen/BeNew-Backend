@@ -34,7 +34,7 @@ public class MatchService {
     //매칭 생성
     public Match RecommendUser(MatchRequestDto matchRequestDto) {
         //사용자의 프로필 카드를 Optional로 가져오기
-        Optional<Profile> userInfo = profileRepository.findByMember_Id(matchRequestDto.getUid1());
+        Optional<Profile> userInfo = profileRepository.findById(matchRequestDto.getUid1());
 
 
         //앱 사용자의 프로필 카드 가져오기
@@ -58,15 +58,13 @@ public class MatchService {
         List<Profile> filteredProfiles = new ArrayList<>();
         // 자기 자신이 아니며, 매칭이 안 만들어진 경우 추천 리스트로 넣음
         for (Profile profile : profilesInRange) {
-            // USER ID와 프로필 ID(업데이트를 고려해서 ID)를 통해 만들어진 매칭 찾기
-            boolean isAlreadyMatched = matchRepository.findAllByUid1(matchRequestDto.getUid1())
-                    .stream()
-                    .anyMatch(existingMatch -> existingMatch.getProfile().getId().equals(profile.getId()));
-
+            boolean isAlreadyMatched = matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), profile).isPresent();
+            //존재 안 하면 ㄱ and 같지 않으면 ㄱ
             if (!isAlreadyMatched && !Objects.equals(profile, userProfile)) {
                 filteredProfiles.add(profile);
             }
         }
+
 
         // 필터링 후 남은 프로필 카드가 없으면 매칭 실패
         if (filteredProfiles.isEmpty()) {
