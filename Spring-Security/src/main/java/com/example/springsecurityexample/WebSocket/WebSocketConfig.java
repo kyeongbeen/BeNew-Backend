@@ -20,6 +20,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         log.info("registerWebSocketHandlers call!!");
 
-        registry.addHandler(chatHandler, "/ws/chat").setAllowedOrigins("*");
+        registry.addHandler(chatHandler, "/ws/chat/**").setAllowedOrigins("*");
     }
 }

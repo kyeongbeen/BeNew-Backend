@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .authorizeRequests()
 //<<<<<<< HEAD
                 .antMatchers("/register", "/login").permitAll()
-                .antMatchers("/ws/chat").permitAll()
+                .antMatchers("/ws/chat/**").permitAll()
 //=======
                 //swagger 추가
                 .antMatchers("/register", "/login","/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()

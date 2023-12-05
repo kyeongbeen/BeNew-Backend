@@ -48,11 +48,11 @@ public class ChatRoom {
         // MessageType == LEAVE ; 채팅방에 "{UserName}님이 나갔습니다" 출력
         // MessageType == Enter, MessageType == LEAVE 일때 테스트 완료 되면 TALK 일때만 남겨두자
 
-        if(!sessions.contains(session)) {
-            sessions.add(session);
-            String enterMessage = new StringBuilder().append(message.getSender()).append("님이 입장했습니다.").toString();
-            sendMessage(enterMessage,service);
-        }
+//        if(!sessions.contains(session)) {
+//            sessions.add(session);
+//            String enterMessage = new StringBuilder().append(message.getSender()).append("님이 입장했습니다.").toString();
+//            sendMessage(enterMessage,service);
+//        }
         if (message.getType().equals(ChatDTO.MessageType.TALK)) {
             message.setMessage(message.getMessage());
             sendMessage(message,service);
