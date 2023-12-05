@@ -56,11 +56,14 @@ public class MatchService {
 
         // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링
         List<Profile> filteredProfiles = new ArrayList<>();
-        //자기 자신이 아니며,(AND) 매칭이 안 만들어진 경우 추천 리스트로 넣음
+        // 자기 자신이 아니며, 매칭이 안 만들어진 경우 추천 리스트로 넣음
         for (Profile profile : profilesInRange) {
             // USER ID와 프로필 ID(업데이트를 고려해서 ID)를 통해 만들어진 매칭 찾기
-            if (matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), profile).isEmpty()
-                    && !Objects.equals(profile, userProfile)) { // 자기 자신인 프로필 카드인 경우
+            boolean isAlreadyMatched = matchRepository.findAllByUid1(matchRequestDto.getUid1())
+                    .stream()
+                    .anyMatch(existingMatch -> existingMatch.getProfile().getId().equals(profile.getId()));
+
+            if (!isAlreadyMatched && !Objects.equals(profile, userProfile)) {
                 filteredProfiles.add(profile);
             }
         }

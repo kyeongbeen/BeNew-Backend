@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findAllByUid1AndMatchingRequestIsFalse(Long Uid1);
     List<Match> findAllByUid1(Long Uid1);
-    Optional<Match> findByUid1AndProfile(Long Uid1, Profile Uid2);
+    Optional<Match> findByUid1AndProfile_Id(Long Uid1, Long Uid2);
     Optional<Match> findByUid1(Long Uid1);
     void deleteByMatchingRequest(MatchRequestType matchingRequest);
     void deleteByMatchSuccess(MatchSuccessType matchSuccessType);
