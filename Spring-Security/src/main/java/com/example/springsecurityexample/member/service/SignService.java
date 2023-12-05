@@ -69,6 +69,7 @@ public class SignService {
 
             // 프로필 생성
             Profile profile = Profile.builder()
+                    .id(member.getId())
                     .member(member)
                     .build();
             profileService.createProfile(member.getId(), profile);
