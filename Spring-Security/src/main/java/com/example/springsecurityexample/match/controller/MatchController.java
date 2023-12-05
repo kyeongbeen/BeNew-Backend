@@ -67,8 +67,9 @@ public class MatchController {
         Match match = matchService.RecommendUser(matchRequestDto);
 
         //매치 생성 실패
-        if(match.getMatchId() == null)
+        if (match == null || match.getMatchId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
 
 
 

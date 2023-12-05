@@ -17,5 +17,7 @@ public class MatchScheduledTask {
     @Scheduled(fixedRate = 600000)
     public void DeleteExpiredMatches() {
         matchService.DeleteRejectedMatches();
+        matchService.DeleteFalseMatches();
     }
+
 }

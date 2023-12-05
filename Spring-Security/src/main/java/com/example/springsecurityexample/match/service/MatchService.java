@@ -33,69 +33,53 @@ public class MatchService {
 
     //매칭 생성
     public Match RecommendUser(MatchRequestDto matchRequestDto) {
-        //사용자의 프로필 정보 가져오기
+        //사용자의 프로필 카드를 Optional로 가져오기
         Optional<Profile> userInfo = profileRepository.findByMember_Id(matchRequestDto.getUid1());
 
-        int userPeer = 0;
-        if (userInfo.isEmpty()) {
+
+        //앱 사용자의 프로필 카드 가져오기
+        Profile userProfile;
+        if (userInfo.isPresent()) {
+            userProfile = userInfo.get();
+        } else {
             return Match.builder().build();
         }
 
-        userPeer = userInfo.get().getPeer();
-        Profile userProfile = userInfo.get();
-
-
+        // 범위 내 주변 프로필 검색
+        int userPeer = userInfo.get().getPeer();
         List<Profile> profilesInRange = profileRepository.findByPeerBetween(userPeer - 5, userPeer + 5);
-        int memberCount = profilesInRange.size();
 
-        //탈출을 위한 변수
-        int i = 0;
+        // 범위 내 프로필 카드가 없는 경우
+        if (profilesInRange.isEmpty()) {
+            return Match.builder().build();
+        }
 
+        // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링
+        List<Profile> filteredProfiles = new ArrayList<>();
+        //자기 자신이 아니며,(AND) 매칭이 안 만들어진 경우 추천 리스트로 넣음
+        for (Profile profile : profilesInRange) {
+            // USER ID와 프로필 ID(업데이트를 고려해서 ID)를 통해 만들어진 매칭 찾기
+            if (matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), profile.getId()).isEmpty()
+                    && !Objects.equals(profile, userProfile)) { // 자기 자신인 프로필 카드인 경우
+                filteredProfiles.add(profile);
+            }
+        }
 
-        //매칭을 위한 랜덤 숫자
-        int randomNum = -1;
-
-        //중복 제거를 위한 배열
-        List<Integer> randomNumbers =  new ArrayList<Integer>();
-        randomNumbers.add(randomNum);
+        // 필터링 후 남은 프로필 카드가 없으면 매칭 실패
+        if (filteredProfiles.isEmpty()) {
+            return Match.builder().build();
+        }
 
         //DTO를 match 엔티티로 변경
         Match match = modelMapper.map(matchRequestDto, Match.class);
 
-        //매칭 시작
-        while (true) {
-            long randomUserProfileId; // profile card id 이다.
-            i = 0;
-
-            do {
-                randomNum = (int) (Math.random() * memberCount);
-                i++;
-                if(i > memberCount)
-                    return Match.builder().build();
-
-            } while (randomNumbers.contains(randomNum));
-            randomNumbers.add(randomNum);
-
-            randomUserProfileId = profilesInRange.get(randomNum).getId();
-
-            // 자기 자신이 매칭 상대인 경우 다시 루프 실행
-            if (randomUserProfileId == userProfile.getId()) {
-                continue;
-            }
-
-
-            // 이미 매칭된 경우 다시 루프 실행
-            if (matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), randomUserProfileId).isPresent()) {
-                continue;
-            }
-
-            // 매칭 성공, profile card 연결
-            Profile profile = profilesInRange.get(randomNum);
-            match.setProfile(profile);
-            break;
-        }
+        //필터링 된 프로필 카드 중 랜덤한 프로필 카드를 가져옴
+        int memberCount = filteredProfiles.size();
+        int randomNum = (int) (Math.random() * memberCount);
+        Profile recommanedProfile = filteredProfiles.get(randomNum);
 
         // 매칭 정보 삽입
+        match.setProfile(recommanedProfile);
         match.setMatchingDate(LocalDateTime.now());
         match.setMatchSuccess(MatchSuccessType.PENDING);
         match.setMatchingRequest(MatchRequestType.PENDING);
@@ -162,7 +146,7 @@ public class MatchService {
         }
     }
 
-    public void deleteAllMatches() {
+    public void DeleteAllMatches() {
         matchRepository.deleteAll();
     }
 
@@ -170,6 +154,15 @@ public class MatchService {
     public void DeleteRejectedMatches() {
         try {
             matchRepository.deleteByMatchingRequest(MatchRequestType.REJECTED);
+        } catch (Exception e) {
+            // 거절된 매칭 삭제
+            logger.error("만들어진 매칭이 한 개도 없습니다. (10분 주기로 실행)", e);
+        }
+    }
+
+    public void DeleteFalseMatches() {
+        try {
+            matchRepository.deleteByMatchSuccess(MatchSuccessType.FALSE);
         } catch (Exception e) {
             // 거절된 매칭 삭제
             logger.error("만들어진 매칭이 한 개도 없습니다. (10분 주기로 실행)", e);
