@@ -49,7 +49,7 @@ public class SignService {
                 .token(token)
                 .build();
     }
-
+    @Transactional
     public boolean register(SignRequest request) throws Exception {
         try {
             Member member = Member.builder()
