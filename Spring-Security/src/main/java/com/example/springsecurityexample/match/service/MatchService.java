@@ -32,6 +32,7 @@ public class MatchService {
     private static final Logger logger = LoggerFactory.getLogger(MatchService.class);
 
     //매칭 생성
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Match RecommendUser(MatchRequestDto matchRequestDto) {
         //사용자의 프로필 카드를 Optional로 가져오기
         Optional<Profile> userInfo = profileRepository.findById(matchRequestDto.getUid1());
