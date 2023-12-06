@@ -34,30 +34,5 @@ public class ProfileController {
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @GetMapping("/profile/{content}/{id}")
-    @ApiOperation("프로필 정보를 하나만 수정가능")
-    public ResponseEntity<String> getProfileContentById(@PathVariable String content, @PathVariable Long id) {
-        Profile profile = profileService.getProfileByMemberId(id);
 
-        if (profile == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        String result = "";
-
-        switch (content) {
-            case "nickname":
-                result = profile.getNickname();
-                break;
-            case "major":
-                result = profile.getMember().getMajor();
-                break;
-            // 여기에 다른 원하는 정보에 대한 case를 추가할 수 있습니다.
-
-            default:
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
 }

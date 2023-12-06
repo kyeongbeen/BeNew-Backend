@@ -3,6 +3,7 @@ package com.example.springsecurityexample.member.service;
 import com.example.springsecurityexample.member.Authority;
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
+import com.example.springsecurityexample.member.dto.ProfileRequest;
 import com.example.springsecurityexample.member.dto.SignRequest;
 import com.example.springsecurityexample.member.dto.SignResponse;
 import com.example.springsecurityexample.member.repository.MemberRepository;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 
 @Service
@@ -24,6 +26,8 @@ public class SignService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final ProfileService profileService;
+
+
 
     public SignResponse login(SignRequest request) throws Exception {
         Member member = memberRepository.findByAccount(request.getAccount()).orElseThrow(() ->
@@ -84,5 +88,31 @@ public class SignService {
         Member member = memberRepository.findByAccount(account)
                 .orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
         return new SignResponse(member);
+    }
+
+
+    public boolean updateMemberInfo(Long id, SignRequest signRequest) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
+
+        boolean isUpdated = false;
+        if (signRequest.getEmail() != null && !signRequest.getEmail().isEmpty()) {
+            member.setEmail(signRequest.getEmail());
+            isUpdated = true;
+        }
+        if (signRequest.getPhoneNumber() != null && !signRequest.getPhoneNumber().isEmpty()) {
+            member.setPhoneNumber(signRequest.getPhoneNumber());
+            isUpdated = true;
+        }
+        if (signRequest.getMajor() != null && !signRequest.getMajor().isEmpty()) {
+            member.setMajor(signRequest.getMajor());
+            isUpdated = true;
+        }
+
+        if (isUpdated) {
+            memberRepository.save(member);
+        }
+
+        return isUpdated;
     }
 }
