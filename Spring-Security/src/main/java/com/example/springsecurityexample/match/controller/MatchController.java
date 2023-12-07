@@ -32,18 +32,18 @@ public class MatchController {
     private final MatchService matchService;
 
     // 사용 중인 user Id 찾아오기.
-    Long GetLoginUserId () {
-        Long id;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Member member = userDetails.getMember();
-            id = member.getId();
-            return id;
-        }
-        else return null;
-    }
+//    Long GetLoginUserId () {
+//        Long id;
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication != null) {
+//            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+//            Member member = userDetails.getMember();
+//            id = member.getId();
+//            return id;
+//        }
+//        else return null;
+//    }
 
     @ApiOperation(
             value = "매칭 생성"
@@ -59,9 +59,9 @@ public class MatchController {
         }
 
         //다른 유저의 id로 매칭을 만드려고 하는 경우
-        if (!Objects.equals(matchRequestDto.getUid1(), GetLoginUserId())) {
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-        }
+//        if (!Objects.equals(matchRequestDto.getUid1(), GetLoginUserId())) {
+//            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+//        }
 
         //매칭 생성
         Match match = matchService.RecommendUserWithRetry(matchRequestDto, 5, 1000);
