@@ -64,14 +64,15 @@ public class MatchController {
         }
 
         //매칭 생성
-        Match match = matchService.RecommendUser(matchRequestDto);
+        Match match = matchService.RecommendUserWithRetry(matchRequestDto, 5, 1000);
+        //Match matchv1 = matchService.RecommendUser(matchRequestDto);
 
         //매치 생성 실패
         if (match == null || match.getMatchId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
-
+        match.update();
 
         //링크 추가
         var selfLinkBuilder = linkTo(methodOn(MatchController.class).CreateMatch(matchRequestDto));

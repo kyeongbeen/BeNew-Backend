@@ -26,16 +26,40 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor //DI
 public class MatchService {
+    public static final Object lock = new Object();
     private final MatchRepository matchRepository;
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private static final Logger logger = LoggerFactory.getLogger(MatchService.class);
 
-    //매칭 생성
-    //@Transactional(isolation = Isolation.SERIALIZABLE)
+    public Match RecommendUserWithRetry(MatchRequestDto matchRequestDto, int maxRetries, long retryDelayMillis) {
+        int retryCount = 0;
+
+        while (retryCount < maxRetries) {
+            try {
+                return RecommendUser(matchRequestDto);
+            } catch (Exception e) {
+                // 예외가 발생한 경우 재시도
+                logger.error("매칭 실패", e);
+                try {
+                    Thread.sleep(retryDelayMillis);
+                } catch (InterruptedException ex) {
+                    logger.error("인터럽트", ex);
+                    //인터럽트 상태면 인터럽트 설정 후 강제 종료
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            }
+            retryCount++;
+        }
+
+        throw new RuntimeException("매칭 상대 없거나, db에러 발생");
+    }
     public Match RecommendUser(MatchRequestDto matchRequestDto) {
+
         //사용자의 프로필 카드를 Optional로 가져오기
+
         Optional<Profile> userInfo = profileRepository.findById(matchRequestDto.getUid1());
 
 
@@ -56,39 +80,43 @@ public class MatchService {
             return Match.builder().build();
         }
 
-        // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링
+        // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링용 배열
         List<Profile> filteredProfiles = new ArrayList<>();
-        // 자기 자신이 아니며, 매칭이 안 만들어진 경우 추천 리스트로 넣음
-        for (Profile profile : profilesInRange) {
-            boolean isAlreadyMatched = matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), profile).isPresent();
-            //존재 안 하면 ㄱ and 같지 않으면 ㄱ
-            if (!isAlreadyMatched && !Objects.equals(profile, userProfile)) {
-                filteredProfiles.add(profile);
+
+        synchronized(lock) {
+            // 자기 자신이 아니며, 매칭이 안 만들어진 경우 추천 리스트로 넣음
+            for (Profile profile : profilesInRange) {
+                //여기서 반환 2개 에러 발생 가능
+                boolean isAlreadyMatched = matchRepository.findByUid1AndProfile_Id(matchRequestDto.getUid1(), profile.getId()).isPresent();
+
+
+                //존재 안 하면 ㄱ and 같지 않으면 ㄱ
+                if (!isAlreadyMatched && !Objects.equals(profile, userProfile)) {
+                    filteredProfiles.add(profile);
+                }
             }
+            // 필터링 후 남은 프로필 카드가 없으면 매칭 실패
+            if (filteredProfiles.isEmpty()) {
+                return Match.builder().build();
+            }
+
+            Profile recommanedProfile = filteredProfiles.get((int) (Math.random() * filteredProfiles.size()));
+            // 매칭 정보 삽입
+            boolean matchingReady = matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), recommanedProfile).isEmpty();
+            if (matchingReady) {
+                try{
+                    return matchRepository.save(
+                            Match.builder()
+                                    .uid1(matchRequestDto.getUid1())
+                                    .matchingDate(LocalDateTime.now())
+                                    .matchSuccess(MatchSuccessType.PENDING)
+                                    .matchingRequest(MatchRequestType.PENDING)
+                                    .profile(recommanedProfile)
+                                    .build());
+                }catch (Exception e) {return null;}
+            }
+            else return null;
         }
-
-
-        // 필터링 후 남은 프로필 카드가 없으면 매칭 실패
-        if (filteredProfiles.isEmpty()) {
-            return Match.builder().build();
-        }
-
-        //DTO를 match 엔티티로 변경
-        Match match = modelMapper.map(matchRequestDto, Match.class);
-
-        //필터링 된 프로필 카드 중 랜덤한 프로필 카드를 가져옴
-        int memberCount = filteredProfiles.size();
-        int randomNum = (int) (Math.random() * memberCount);
-        Profile recommanedProfile = filteredProfiles.get(randomNum);
-
-        // 매칭 정보 삽입
-        match.setProfile(recommanedProfile);
-        match.setMatchingDate(LocalDateTime.now());
-        match.setMatchSuccess(MatchSuccessType.PENDING);
-        match.setMatchingRequest(MatchRequestType.PENDING);
-        match.update();
-        matchRepository.save(match);
-        return match;
     }
 
     //매칭 조회 (return type : Match)

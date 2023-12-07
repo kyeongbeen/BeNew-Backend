@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter @EqualsAndHashCode(of = "matchId")
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"uid1", "uid2"})
+})
 public class Match {
     @Id @GeneratedValue
     private Long matchId;
@@ -23,12 +26,9 @@ public class Match {
     @Enumerated(EnumType.STRING)
     private MatchSuccessType matchSuccess = MatchSuccessType.PENDING;
 
-
-
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "uid2")
     private Profile profile;
-
 
 
     //TODO : update() - isUid2Team field
