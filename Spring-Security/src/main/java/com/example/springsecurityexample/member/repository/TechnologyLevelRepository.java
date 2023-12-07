@@ -1,6 +1,8 @@
 package com.example.springsecurityexample.member.repository;
 
 import com.example.springsecurityexample.member.Member;
+import com.example.springsecurityexample.member.Profile;
+import com.example.springsecurityexample.member.Technology;
 import com.example.springsecurityexample.member.TechnologyLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,5 +16,7 @@ public interface TechnologyLevelRepository extends JpaRepository<TechnologyLevel
     List<TechnologyLevel> findTechnologyLevelByMember(Member member);
     List<TechnologyLevel> findByMember_Account(String account);
     List<TechnologyLevel> findByProfile_Id(Long profileId);
+
+    Optional<TechnologyLevel> findByProfileAndTechnology(Profile profile, Technology technology);
 
 }

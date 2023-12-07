@@ -107,20 +107,21 @@ public class TechnologyLevelService {
         return technologyLevelRepository.findByProfile_Id(profileId);
     }
 
-//    // 추가적인 메서드가 필요한 경우 여기에 작성
-//    public void updateTechnologyLevels(String memberId, List<TechnologyLevelRequest> technologyLevels) {
-//        // 기존 기술 스택 정보 삭제
-////        technologyLevelRepository.deleteByProfileMemberId(memberId);
-//
-//        // 새로운 기술 스택 정보 추가
-//        List<TechnologyLevel> newTechnologyLevels = technologyLevels.stream()
-//                .map(dto -> TechnologyLevel.builder()
-//                        .technology(Technology.builder().id(dto.getTechnologyId()).build())
-//                        .level(dto.getLevel())
-//                        .member(new Profile(new Member(memberId)))  // 새로 추가
-//                        .build())
-//                .collect(Collectors.toList());
-//
-//        technologyLevelRepository.saveAll(newTechnologyLevels);
-//    }
+    public void updateTechnologyLevel(Long profileId, Long technologyId, int newLevel) {
+        // Profile과 Technology를 찾고, 해당하는 TechnologyLevel을 조회합니다.
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found"));
+        Technology technology = technologyRepository.findById(technologyId)
+                .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
+
+        TechnologyLevel technologyLevel = technologyLevelRepository.findByProfileAndTechnology(profile, technology)
+                .orElseThrow(() -> new EntityNotFoundException("TechnologyLevel not found"));
+
+        // 새로운 레벨로 설정합니다.
+        technologyLevel.setLevel(newLevel);
+
+        // 업데이트된 객체를 저장합니다.
+        technologyLevelRepository.save(technologyLevel);
+    }
+
 }

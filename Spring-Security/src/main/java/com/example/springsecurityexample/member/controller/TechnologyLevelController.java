@@ -2,6 +2,7 @@ package com.example.springsecurityexample.member.controller;
 
 import com.example.springsecurityexample.member.TechnologyLevel;
 import com.example.springsecurityexample.member.dto.TechnologyLevelRequest;
+import com.example.springsecurityexample.member.dto.TechnologyLevelUpdateRequest;
 import com.example.springsecurityexample.member.service.TechnologyLevelService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -79,5 +80,13 @@ public class TechnologyLevelController {
         return new ResponseEntity<>(technologyLevels, HttpStatus.OK);
     }
 
-    // 추가적인 메서드가 필요한 경우 여기에 작성
+    @PutMapping("/profile/{profileId}/technology/{technologyId}")
+    @ApiOperation("특정 Profile의 특정 기술 스택 레벨 변경")
+    public ResponseEntity<String> updateTechnologyLevel(
+            @PathVariable Long profileId,
+            @PathVariable Long technologyId,
+            @RequestBody TechnologyLevelUpdateRequest request) {
+        technologyLevelService.updateTechnologyLevel(profileId, technologyId, request.getLevel());
+        return new ResponseEntity<>("Technology level updated successfully", HttpStatus.OK);
+    }
 }
