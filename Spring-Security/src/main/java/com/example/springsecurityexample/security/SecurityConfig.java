@@ -119,6 +119,7 @@ public class SecurityConfig {
                 "/configuration/security",
                 "/swagger-ui.html",
                 "/webjars/**",
+                "/ws/chat/**",
                 /* swagger v3 */
                 "/v3/api-docs/**",
                 "/swagger-ui/**");

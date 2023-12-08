@@ -1,5 +1,6 @@
 package com.example.springsecurityexample.WebSocket;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.example.springsecurityexample.Chat.ChatHandler;
@@ -17,9 +18,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final ChatHandler chatHandler;
 
     @Override
+    @ApiOperation("어쩌고 저쩌고")
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        log.info("registerWebSocketHandlers call!!");
-
         registry.addHandler(chatHandler, "/ws/chat/**").setAllowedOrigins("*");
     }
 }
