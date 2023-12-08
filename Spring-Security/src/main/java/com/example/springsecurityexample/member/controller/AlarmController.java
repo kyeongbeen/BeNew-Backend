@@ -56,4 +56,11 @@ public class AlarmController {
         return new ResponseEntity<>("Number of alarms: " + numAlarms, HttpStatus.OK);
     }
 
+    @GetMapping("alarms/readnum/{userId}")
+    @ApiOperation("사용자의 전체 알림 목록의 갯수를 반환")
+    public ResponseEntity<String> getAlarmsReadNum(@PathVariable Long userId) {
+        int numAlarms = alarmService.getAlarmIsReadNum(userId);
+        return new ResponseEntity<>("Number of alarms: " + numAlarms, HttpStatus.OK);
+    }
+
 }

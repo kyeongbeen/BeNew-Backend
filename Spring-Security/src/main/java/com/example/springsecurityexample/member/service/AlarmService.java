@@ -76,4 +76,7 @@ public class AlarmService {
     public int getAlarmNum(Long userId) {
         return alarmRepository.countByReceiverUserId_Id(userId);
     }
+    public int getAlarmIsReadNum(Long userId) {
+        return alarmRepository.countByReceiverUserId_IdAndIsReadFalse(userId);
+    }
 }

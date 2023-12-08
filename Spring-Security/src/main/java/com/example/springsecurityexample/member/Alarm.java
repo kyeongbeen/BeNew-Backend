@@ -23,7 +23,7 @@ public class Alarm {
 
     private String message; // 알림 메시지
     private LocalDateTime timestamp; // 알림 생성 시간
-    private boolean isRead; // 알림 읽음 여부
+    private boolean isRead = false; // 알림 읽음 여부
 
     // 추가적인 필드 (예: 초대된 팀 ID 또는 유형)를 포함할 수 있습니다.
 }
