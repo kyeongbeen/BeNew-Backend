@@ -167,13 +167,13 @@ public class MatchController {
     public ResponseEntity<Match> SuccessMatch(@PathVariable Long matchId){
         Match match = matchService.UpdateMatchStatusIsSuccess(matchId);
         return ResponseEntity
-                .status(match.getMatchSuccess() == MatchSuccessType.SUCCESS
-                        ? HttpStatus.OK
-                        : HttpStatus.NO_CONTENT
+                .status(
+                        match != null
+                                ? HttpStatus.OK
+                                : HttpStatus.NO_CONTENT
                 )
-                .body(match.getMatchSuccess() == MatchSuccessType.PENDING
-                        ? match
-                        : null
+                .body(
+                        match
                 );
     }
 
@@ -185,13 +185,13 @@ public class MatchController {
     public ResponseEntity<Match> FalseMatch(@PathVariable Long matchId){
         Match match = matchService.UpdateMatchStatusIsFalse(matchId);
         return ResponseEntity
-                .status(match.getMatchSuccess() == MatchSuccessType.FALSE
-                        ? HttpStatus.OK
-                        : HttpStatus.NO_CONTENT
+                .status(
+                        match != null
+                                ? HttpStatus.OK
+                                : HttpStatus.NO_CONTENT
                 )
-                .body(match.getMatchSuccess() == MatchSuccessType.PENDING
-                        ? match
-                        : null
+                .body(
+                        match
                 );
     }
 

@@ -80,10 +80,12 @@ public class MatchService {
             return null;
         }
 
-        // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링용 배열
-        List<Profile> filteredProfiles = new ArrayList<>();
+
 
         synchronized(lock) {
+            // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링용 배열
+            List<Profile> filteredProfiles = new ArrayList<>();
+
             // 자기 자신이 아니며, 매칭이 안 만들어진 경우 추천 리스트로 넣음
             for (Profile profile : profilesInRange) {
                 //여기서 반환 2개 에러 발생 가능
@@ -210,7 +212,7 @@ public class MatchService {
             matchRepository.save(match);
             return match; // 변경된 Match 객체를 반환
         }
-        return Match.builder().build();
+        return null;
     }
 
     //매칭 실패
@@ -222,7 +224,7 @@ public class MatchService {
             matchRepository.save(match);
             return match; // 변경된 Match 객체를 반환
         }
-        return Match.builder().build();
+        return null;
     }
 
     //매칭 요청
