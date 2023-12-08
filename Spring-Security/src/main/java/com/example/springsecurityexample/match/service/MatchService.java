@@ -68,7 +68,7 @@ public class MatchService {
         if (userInfo.isPresent()) {
             userProfile = userInfo.get();
         } else {
-            return Match.builder().build();
+            return null;
         }
 
         // 범위 내 주변 프로필 검색
@@ -77,7 +77,7 @@ public class MatchService {
 
         // 범위 내 프로필 카드가 없는 경우
         if (profilesInRange.isEmpty()) {
-            return Match.builder().build();
+            return null;
         }
 
         // 이미 매칭된 프로필 및 앱 사용자의 프로필 필터링용 배열
@@ -97,7 +97,7 @@ public class MatchService {
             }
             // 필터링 후 남은 프로필 카드가 없으면 매칭 실패
             if (filteredProfiles.isEmpty()) {
-                return Match.builder().build();
+                return null;
             }
 
             Profile recommanedProfile = filteredProfiles.get((int) (Math.random() * filteredProfiles.size()));
@@ -128,8 +128,8 @@ public class MatchService {
             matchList.get(i).update();
             if ( false
 //                    원하는 조건을 붙혀서 원하는 매치 정보만 볼 수 있다.
-//                    matchList.get(i).getMatchingRequest() == MatchRequestType.REJECTED
-//                    || matchList.get(i).getMatchSuccess() == MatchSuccessType.SUCCESS
+//                    ex) matchList.get(i).getMatchingRequest() == MatchRequestType.REJECTED
+
             )
             {
                 matchList.remove(i);
@@ -191,6 +191,7 @@ public class MatchService {
         }
     }
 
+    //매칭 스케줄러용 함수
     public void DeleteFalseMatches() {
         try {
             matchRepository.deleteByMatchSuccess(MatchSuccessType.FALSE);
@@ -234,7 +235,7 @@ public class MatchService {
             matchRepository.save(match);
             return match; // 변경된 Match 객체를 반환
         }
-        return Match.builder().build();
+        return null;
     }
 
     //매칭 거절
@@ -247,7 +248,7 @@ public class MatchService {
             matchRepository.save(match);
             return match; // 변경된 Match 객체를 반환
         }
-        return Match.builder().build();
+        return null;
     }
 
 }
