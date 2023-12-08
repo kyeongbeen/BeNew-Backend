@@ -63,6 +63,7 @@ public class MatchController {
 //            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 //        }
 
+
         //매칭 생성
         Match match = matchService.RecommendUserWithRetry(matchRequestDto, 5, 1000);
         //Match matchv1 = matchService.RecommendUser(matchRequestDto);
@@ -71,8 +72,11 @@ public class MatchController {
         if (match == null || match.getMatchId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
+        // @@@@@@@@@@ 동기화 도전
 
         match.update();
+
+        // @@@@@@@@@@ 동기화 도전
 
         //링크 추가
         var selfLinkBuilder = linkTo(methodOn(MatchController.class).CreateMatch(matchRequestDto));
@@ -200,14 +204,12 @@ public class MatchController {
         Match match = matchService.LikeMatchStatusById(matchId);
         return ResponseEntity
                 .status(
-                        match.getMatchingRequest() == MatchRequestType.REQUESTED
+                        match != null
                                 ? HttpStatus.OK
                                 : HttpStatus.NO_CONTENT
                 )
                 .body(
-                        match.getMatchingRequest() == MatchRequestType.REQUESTED
-                                ? match
-                                : null
+                        match
                 );
     }
 
@@ -219,13 +221,13 @@ public class MatchController {
     public ResponseEntity<Match> DislikeMatch(@PathVariable Long matchId){
         Match match = matchService.DislikeMatchStatusById(matchId);
         return ResponseEntity
-                .status(match.getMatchingRequest() == MatchRequestType.REJECTED
-                        ? HttpStatus.OK
-                        : HttpStatus.NO_CONTENT
+                .status(
+                        match != null
+                                ? HttpStatus.OK
+                                : HttpStatus.NO_CONTENT
                 )
-                .body(match.getMatchingRequest() == MatchRequestType.REJECTED
-                        ? match
-                        : null
+                .body(
+                        match
                 );
     }
 }
