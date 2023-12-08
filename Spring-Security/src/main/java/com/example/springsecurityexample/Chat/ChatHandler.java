@@ -22,7 +22,6 @@ public class ChatHandler extends TextWebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         String payload = (String) message.getPayload();
-//        TextMessage intialGretting = new TextMessage("Welcome to Chat Server");
 //        JSON -> Java Object
         ChatDTO chatMessage = mapper.readValue(payload, ChatDTO.class);
 
@@ -52,11 +51,13 @@ public class ChatHandler extends TextWebSocketHandler {
         String path = session.getUri().getPath();
         String roomId = path.substring(path.lastIndexOf("/") + 1);
 
-
-        log.info("\n\n\n\n\n roomId = " + roomId);
 //        chatroom = service.findRoom(chatMessage.getRoomId());
         chatroom = service.findRoom(roomId);
         chatroom.getSessions().add(session);
+        log.info("\n\n\n roomId = " + roomId +
+        "\n session = " + session +
+        "\n sessions = " + chatroom.getSessions(),
+        "\n chatrooms = " + service.getChatRooms().toString());
 
 //        chatroom.enterAction(session, service);
     }

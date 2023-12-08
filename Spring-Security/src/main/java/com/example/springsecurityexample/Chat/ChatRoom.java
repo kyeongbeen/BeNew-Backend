@@ -19,7 +19,7 @@ public class ChatRoom {
     private Set<WebSocketSession> sessions = new HashSet<>();
 
     @Builder
-    public ChatRoom(String roomId,String name){
+    public ChatRoom(String roomId,String name) {
         this.roomId = roomId;
         this.name = name;
     }
@@ -93,6 +93,7 @@ public class ChatRoom {
 
     public <T> void sendMessage(T message, ChatService service){
         // 병렬처리
+        log.info("sessions = " + sessions.toString());
         sessions.parallelStream().forEach(sessions -> service.sendMessage(sessions,message));
     }
 }

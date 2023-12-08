@@ -36,8 +36,25 @@ public class ChatService {
     // 새로운 채팅방이 만들어질때
     public ChatRoom createRoom(int user1, int user2) {
         String roomId = UUID.randomUUID().toString();
+        String user1Name = new String();
+        String user2Name = new String();
         // 최초의 채팅방 이름 설정
-        String roomName = new StringBuilder().append(user1).append(", ").append(user2).append("님의 채팅방").toString();
+        String selectUserNameQuery = "select id, name from chatroomparticipants left join member on chatroomparticipants.userid = member.id where chatroomparticipants.userid in (?, ?)";
+        Object[] userName = {user1, user2};
+        List<Map<String, Object>> userNameList = jdbcTemplate.queryForList(selectUserNameQuery, userName);
+        int count = 0;
+
+        for (Map<String, Object> row : userNameList) {
+            if(count == 0) {
+                user1Name = row.get("name").toString();
+            }
+            else {
+                user2Name = row.get("name").toString();
+            }
+            count++;
+        }
+
+        String roomName = new StringBuilder().append(user1Name).append(", ").append(user2Name).append("님의 채팅방").toString();
         LocalDateTime currTime = LocalDateTime.now();
 
         String insertUserQuery = "insert into chatroomparticipants values (?, ? ,?)";
@@ -98,13 +115,6 @@ public class ChatService {
         for (Map<String, Object> row : results) {
             String roomid = row.get("roomid").toString();
             String roomname = row.get("roomname").toString();
-
-            for(Map<String, Object> row2 : results2) {
-                String roomid2 = row.get("roomid").toString();
-                String roomname2 = row.get("roomname").toString();
-            ChatRoom chatRoom2 = new ChatRoom(roomid2, roomname2);
-            }
-
             ChatRoom chatRoom = new ChatRoom(roomid, roomname);
             chatRooms.put(roomid, chatRoom);
         }
@@ -129,8 +139,8 @@ public class ChatService {
 //        }
 //        return new ArrayList<>(chatRooms.values());
 //    }
-
-    //select * from technology_level where profile_id = (select id from profile where memober_id = ?)
+//
+// select * from technology_level where profile_id = (select id from profile where memober_id = ?)
 
     public ChatRoom findRoom(String roomId){
         return chatRooms.get(roomId);
@@ -182,14 +192,6 @@ public class ChatService {
         String query= "update chatrooms set roomname = ? where roomid = ?";
         Object[] params = {roomName, roomId};
         jdbcTemplate.update(query, params);
-    }
-
-    {
-        int id;
-        int level;
-        int profile_id;
-        int technology_id;
-
     }
 }
 
