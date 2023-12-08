@@ -103,7 +103,6 @@ public class ChatService {
                 String roomid2 = row.get("roomid").toString();
                 String roomname2 = row.get("roomname").toString();
             ChatRoom chatRoom2 = new ChatRoom(roomid2, roomname2);
-
             }
 
             ChatRoom chatRoom = new ChatRoom(roomid, roomname);
@@ -137,7 +136,6 @@ public class ChatService {
         return chatRooms.get(roomId);
     }
 
-
     public void leaveRoom(String userId, String roomId) {
         String exitChatRoomQuery = "delete from chatroomparticipants where roomid = ? and userid = ?";
         Object[] param = {roomId, userId};
@@ -153,7 +151,7 @@ public class ChatService {
     }
 
     public List<ChatDTO> getMessages(String sendDate, String roomId) {
-        String query2 = "select roomid, message, notreadnumber, senddate, sender, sequence from chatcontents where roomid = ? and senddate LIKE ?";
+        String query2 = "select roomid, message, notreadnumber, senddate, sender, sequence, member.name from chatcontents left join member on chatcontents.sender = member.id where roomid = ? and senddate LIKE ?";
         Object[] param = {roomId, sendDate + '%'};
         List<Map<String, Object>> results =  jdbcTemplate.queryForList(query2, param);
 
@@ -163,13 +161,12 @@ public class ChatService {
             String message = row.get("message").toString();
             String senddate = row.get("senddate").toString();
             int sender = Integer.parseInt(row.get("sender").toString());
+            String senderName = row.get("name").toString();
             Object sequence = row.get("sequence");
 
-            ChatDTO chatDTO = new ChatDTO(ChatDTO.MessageType.TALK, roomid, sender, message, senddate);
+            ChatDTO chatDTO = new ChatDTO(ChatDTO.MessageType.TALK, roomid, sender, senderName, message, senddate);
             chatDTOs.put(sequence, chatDTO);
         }
-
-
         return new ArrayList<>(chatDTOs.values());
     }
 

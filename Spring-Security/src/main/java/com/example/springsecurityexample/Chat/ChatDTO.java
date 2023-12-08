@@ -16,15 +16,17 @@ public class ChatDTO {
     private MessageType type;
     private String roomId;
     private int sender;
+    private String senderName;
     private String message;
     private String senddate;
 
 
     @JsonCreator
-    public ChatDTO(@JsonProperty("type") MessageType type, @JsonProperty("roomId") String roomId, @JsonProperty("sender") int sender, @JsonProperty("message") String message, @JsonProperty("sendDate") String sendDate) {
+    public ChatDTO(@JsonProperty("type") MessageType type, @JsonProperty("roomId") String roomId, @JsonProperty("sender") int sender, @JsonProperty("senderName") String senderName, @JsonProperty("message") String message, @JsonProperty("sendDate") String sendDate) {
         this.type = type;
         this.roomId = roomId;
         this.sender = sender;
+        this.senderName = senderName;
         this.message = message;
         this.senddate = sendDate;
     }
