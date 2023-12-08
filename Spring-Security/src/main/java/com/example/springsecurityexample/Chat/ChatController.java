@@ -51,11 +51,6 @@ public class ChatController {
         return service.createRoom(user1, user2);
     }
 
-//    @PostMapping(path="/new/{user1}/{user2}/{session}")
-//    public ChatRoom createRoom(@PathVariable("user1") String user1, @PathVariable("user2") String user2, @PathVariable("session") String session) {
-//        return service.createRoom(user1, user2, session);
-//    }
-
     @PostMapping(path="/new/{user1}/{session}/{user2}")
     @ApiOperation("user1이 본인의 채팅방에 user2를 초대. user2의 수락, user1의 채팅방에서 투표가 만장일치 시 ")
     public ChatRoom createRoom(@PathVariable("user1") int user1, @PathVariable("session") String session, @PathVariable("user2") int user2) {
@@ -67,7 +62,6 @@ public class ChatController {
     public ChatRoom createRoom(@PathVariable("user1") int user1, @PathVariable("user2") int user2, @PathVariable("session") String session) {
         return service.createRoom(user1, user2, session);
     }
-
 
     // roomId는 바꾸고 싶은 채팅방 식별자, roomName은 바꿧을때 표시되고 싶은 채팅방 이름
     @PatchMapping(path = "/roomId/{roomId}/{roomName}")

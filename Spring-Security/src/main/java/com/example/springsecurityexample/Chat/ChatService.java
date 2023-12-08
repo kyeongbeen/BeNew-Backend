@@ -121,27 +121,6 @@ public class ChatService {
         return new ArrayList<>(chatRooms.values());
     }
 
-//
-//    public List<ChatRoom> findRooms(int userId){
-//        // query로 내가 속한 채팅방들을 list에 저장
-//        String insertUserQuery = "select roomid, roomname from chatrooms where roomid in (select roomid from chatroomparticipants where userid = ?)";
-//        Object[] param = {userId};
-//        List<Map<String, Object>> results = jdbcTemplate.queryForList(insertUserQuery, param);
-//
-//        // list에 담겨있는 채팅방들을 chatrooms에 roomid를 키로 저장
-//        chatRooms.clear();
-//        for (Map<String, Object> row : results) {
-//            String roomid = row.get("roomid").toString();
-//            String roomname = row.get("roomname").toString();
-//
-//            ChatRoom chatRoom = new ChatRoom(roomid, roomname);
-//            chatRooms.put(roomid, chatRoom);
-//        }
-//        return new ArrayList<>(chatRooms.values());
-//    }
-//
-// select * from technology_level where profile_id = (select id from profile where memober_id = ?)
-
     public ChatRoom findRoom(String roomId){
         return chatRooms.get(roomId);
     }
@@ -192,6 +171,8 @@ public class ChatService {
         String query= "update chatrooms set roomname = ? where roomid = ?";
         Object[] params = {roomName, roomId};
         jdbcTemplate.update(query, params);
+
+        String sendDate = LocalDateTime.now().toString();
     }
 }
 

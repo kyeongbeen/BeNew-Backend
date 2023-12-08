@@ -24,42 +24,22 @@ public class ChatHandler extends TextWebSocketHandler {
         String payload = (String) message.getPayload();
 //        JSON -> Java Object
         ChatDTO chatMessage = mapper.readValue(payload, ChatDTO.class);
-
-//        chatroom = service.findRoom(chatMessage.getRoomId());
         chatroom.handleAction(session,chatMessage, service);
-//        ChatRoom room = service.findRoom(chatMessage.getRoomId());
-//        room.handleAction(session,chatMessage, service);
-
         service.insertMessage(chatMessage, chatroom);
     }
 
     /** Client가 접속 시 호출되는 메서드*/
-//    @Override
-//    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-//        // 특정 채팅방에 입장하면 해당
-//        log.info(session + " 클라이언트 접속");
-//        //chatroom.getSessions().add(session);
-//        chatroom.enterAction(session, service);
-//
-//
-//    }
-
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // 특정 채팅방에 입장하면 해당
         log.info(session + " 클라이언트 접속");
-        //chatroom.getSessions().add(session);
         String path = session.getUri().getPath();
         String roomId = path.substring(path.lastIndexOf("/") + 1);
-
-//        chatroom = service.findRoom(chatMessage.getRoomId());
         chatroom = service.findRoom(roomId);
         chatroom.getSessions().add(session);
         log.info("\n\n\n roomId = " + roomId +
         "\n session = " + session +
         "\n sessions = " + chatroom.getSessions(),
         "\n chatrooms = " + service.getChatRooms().toString());
-
-//        chatroom.enterAction(session, service);
     }
 
     /** client가 퇴장 시 호출되는 메서드*/
