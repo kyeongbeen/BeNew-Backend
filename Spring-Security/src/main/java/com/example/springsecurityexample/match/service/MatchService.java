@@ -204,8 +204,8 @@ public class MatchService {
     }
 
     //매칭 성사
-    public Match UpdateMatchStatusIsSuccess(Long id){
-        Optional<Match> matchOptional = matchRepository.findById(id);
+    public Match UpdateMatchStatusIsSuccess(Long uid1, Long uid2){
+        Optional<Match> matchOptional = matchRepository.findByUid1AndProfile_Id(uid1, uid2);
         if (matchOptional.isPresent()) {
             Match match = matchOptional.get();
             match.setMatchSuccess(MatchSuccessType.SUCCESS);
@@ -216,8 +216,8 @@ public class MatchService {
     }
 
     //매칭 실패
-    public Match UpdateMatchStatusIsFalse(Long id){
-        Optional<Match> matchOptional = matchRepository.findById(id);
+    public Match UpdateMatchStatusIsFalse(Long uid1, Long uid2){
+        Optional<Match> matchOptional = matchRepository.findByUid1AndProfile_Id(uid1, uid2);
         if (matchOptional.isPresent()) {
             Match match = matchOptional.get();
             match.setMatchSuccess(MatchSuccessType.FALSE);

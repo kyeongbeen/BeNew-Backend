@@ -111,8 +111,8 @@ public class MatchController {
         //링크 생성
         var selfLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatchByMatchId(matchId));
         URI createdUri = selfLinkBuilder.toUri();
-        var FalseMatchLinkBuilder = linkTo(methodOn(MatchController.class).FalseMatch(matchId));
-        var SuccessMatchLinkBuilder = linkTo(methodOn(MatchController.class).SuccessMatch(matchId));
+        var FalseMatchLinkBuilder = linkTo(methodOn(MatchController.class).FalseMatch(match.getUid1(), match.getProfile().getId()));
+        var SuccessMatchLinkBuilder = linkTo(methodOn(MatchController.class).SuccessMatch(match.getUid1(), match.getProfile().getId()));
         var GetRequesterInformation = linkTo(methodOn(ProfileController.class).getProfileByMemberId(matchId));
 
         MatchResource matchResource = new MatchResource(match);
@@ -163,9 +163,9 @@ public class MatchController {
             value = "매칭 성사(매칭 요청을 알람에서 수락)"
             , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 SUCCESS로 변경" +
             "\n매칭 성사 시 사용.")
-    @PatchMapping("/patch/match/success/{matchId}")
-    public ResponseEntity<Match> SuccessMatch(@PathVariable Long matchId){
-        Match match = matchService.UpdateMatchStatusIsSuccess(matchId);
+    @PatchMapping("/patch/match/success/{sender}/{receiver}")
+    public ResponseEntity<Match> SuccessMatch(@PathVariable Long sender, Long receiver){
+        Match match = matchService.UpdateMatchStatusIsSuccess(sender ,receiver);
         return ResponseEntity
                 .status(
                         match != null
@@ -181,9 +181,9 @@ public class MatchController {
             value = "매칭 실패(매칭 요청을 알람에서 거절)"
             , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 FALSE로 변경" +
             "\n매칭 실패 시 사용.")
-    @PatchMapping("/patch/match/false/{matchId}")
-    public ResponseEntity<Match> FalseMatch(@PathVariable Long matchId){
-        Match match = matchService.UpdateMatchStatusIsFalse(matchId);
+    @PatchMapping("/patch/match/false/{sender}/{receiver}")
+    public ResponseEntity<Match> FalseMatch(@PathVariable Long sender, Long receiver){
+        Match match = matchService.UpdateMatchStatusIsFalse(sender ,receiver);
         return ResponseEntity
                 .status(
                         match != null
