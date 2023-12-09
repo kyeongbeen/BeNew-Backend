@@ -164,7 +164,7 @@ public class MatchController {
             , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 SUCCESS로 변경" +
             "\n매칭 성사 시 사용.")
     @PatchMapping("/patch/match/success/{sender}/{receiver}")
-    public ResponseEntity<Match> SuccessMatch(@PathVariable Long sender, Long receiver){
+    public ResponseEntity<Match> SuccessMatch(@PathVariable Long sender, @PathVariable Long receiver){
         Match match = matchService.UpdateMatchStatusIsSuccess(sender ,receiver);
         return ResponseEntity
                 .status(
@@ -182,7 +182,7 @@ public class MatchController {
             , notes = "URI를 통해 받은 매칭 ID로 매칭 성사 여부를 저장하는 칼럼을 FALSE로 변경" +
             "\n매칭 실패 시 사용.")
     @PatchMapping("/patch/match/false/{sender}/{receiver}")
-    public ResponseEntity<Match> FalseMatch(@PathVariable Long sender, Long receiver){
+    public ResponseEntity<Match> FalseMatch(@PathVariable Long sender, @PathVariable Long receiver){
         Match match = matchService.UpdateMatchStatusIsFalse(sender ,receiver);
         return ResponseEntity
                 .status(
