@@ -49,7 +49,7 @@ public class AlarmService {
     }
 
     public List<AlarmResponse> getAlarmsForUser(Long userId){
-        List<Alarm> alarms = alarmRepository.findByReceiverUserId_Id(userId);
+        List<Alarm> alarms = alarmRepository.findByReceiverUserId_IdAndIsReadFalse(userId);
         return alarms.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
