@@ -13,4 +13,6 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     int countByReceiverUserId_Id(Long receiverUserId);
 
     int countByReceiverUserId_IdAndIsReadFalse(Long receiverUserId);
+
+    List<Alarm> findByReceiverUserId_IdAndIsReadFalse (Long receiverUserId);
 }
