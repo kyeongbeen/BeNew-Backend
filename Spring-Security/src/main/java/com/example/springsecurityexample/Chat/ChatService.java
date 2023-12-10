@@ -107,8 +107,6 @@ public class ChatService {
         String insertUserQuery = "select roomid, roomname from chatrooms where roomid in (select roomid from chatroomparticipants where userid = ?)";
         Object[] param = {userId};
         List<Map<String, Object>> results = jdbcTemplate.queryForList(insertUserQuery, param);
-        List<Map<String, Object>> results2 = jdbcTemplate.queryForList(insertUserQuery, param);
-
 
         // list에 담겨있는 채팅방들을 chatrooms에 roomid를 키로 저장
         chatRooms.clear();
@@ -140,7 +138,7 @@ public class ChatService {
     }
 
     public List<ChatDTO> getMessages(String sendDate, String roomId) {
-        String query2 = "select roomid, message, notreadnumber, senddate, sender, sequence, member.name from chatcontents left join member on chatcontents.sender = member.id where roomid = ? and senddate LIKE ?";
+        String query2 = "select roomid, message, senddate, sender, name, sequence from chatcontents left join member on chatcontents.sender = member.id where roomid = ? and senddate LIKE ?";
         Object[] param = {roomId, sendDate + '%'};
         List<Map<String, Object>> results =  jdbcTemplate.queryForList(query2, param);
 
@@ -171,8 +169,6 @@ public class ChatService {
         String query= "update chatrooms set roomname = ? where roomid = ?";
         Object[] params = {roomName, roomId};
         jdbcTemplate.update(query, params);
-
-        String sendDate = LocalDateTime.now().toString();
     }
 }
 
