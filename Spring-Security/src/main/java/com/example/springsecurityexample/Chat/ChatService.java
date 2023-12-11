@@ -44,16 +44,31 @@ public class ChatService {
         List<Map<String, Object>> userNameList = jdbcTemplate.queryForList(selectUserNameQuery, userName);
         int count = 0;
 
-        for (Map<String, Object> row : userNameList) {
-            if(count == 0) {
-                user1Name = row.get("name").toString();
+        if(user1 > user2) {
+            for (Map<String, Object> row : userNameList) {
+                if(count == 0) {
+                    user2Name = row.get("name").toString();
+                }
+                else {
+                    user1Name = row.get("name").toString();
+                    break;
+                }
+                count++;
             }
-            else {
-                user2Name = row.get("name").toString();
-                break;
-            }
-            count++;
         }
+        else {
+            for (Map<String, Object> row : userNameList) {
+                if(count == 0) {
+                    user1Name = row.get("name").toString();
+                }
+                else {
+                    user2Name = row.get("name").toString();
+                    break;
+                }
+                count++;
+            }
+        }
+
 
         String roomName = new StringBuilder().append(user1Name).append(", ").append(user2Name).append("님의 채팅방").toString();
         LocalDateTime currTime = LocalDateTime.now();
