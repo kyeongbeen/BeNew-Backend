@@ -39,7 +39,7 @@ public class ChatService {
         String user1Name = new String();
         String user2Name = new String();
         // 최초의 채팅방 이름 설정
-        String selectUserNameQuery = "select id, name from chatroomparticipants left join member on chatroomparticipants.userid = member.id where chatroomparticipants.userid in (?, ?)";
+        String selectUserNameQuery = "select id, name from member where id in (?, ?)";
         Object[] userName = {user1, user2};
         List<Map<String, Object>> userNameList = jdbcTemplate.queryForList(selectUserNameQuery, userName);
         int count = 0;
@@ -50,6 +50,7 @@ public class ChatService {
             }
             else {
                 user2Name = row.get("name").toString();
+                break;
             }
             count++;
         }

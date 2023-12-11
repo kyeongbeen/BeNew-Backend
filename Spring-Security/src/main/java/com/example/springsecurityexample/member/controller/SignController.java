@@ -51,7 +51,7 @@ public class SignController {
     @ApiOperation("유저의 개인정보 업데이트")
     public ResponseEntity<String> updateMember(@PathVariable Long id,
                                                @RequestBody SignRequest signRequest) {
-        log.info("@@@@@@@@@@@@@@@@@@@@@@@1됐다//////////////////////////////");
+        log.info("@@@@@@@@@@@@@@@@@@@@@@@1됐다//////////////////////////////");// n byte니까
         boolean isUpdated = memberService.updateMemberInfo(id, signRequest);
         log.info("@@@@@@@@@@@@@@@@@@@@@@@2됐다//////////////////////////////");
         if (isUpdated) {
