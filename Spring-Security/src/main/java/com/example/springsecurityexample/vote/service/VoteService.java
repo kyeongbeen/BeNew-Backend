@@ -1,23 +1,17 @@
 package com.example.springsecurityexample.vote.service;
 
 
-import com.example.springsecurityexample.Chat.ChatDTO;
-import com.example.springsecurityexample.Chat.ChatRoom;
 import com.example.springsecurityexample.vote.Vote;
 import com.example.springsecurityexample.vote.dto.VoteDTO;
 import com.example.springsecurityexample.vote.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
