@@ -23,11 +23,11 @@ public class MessageController {
 //
 //        return new ResponseEntity<>(message, HttpStatus.OK);
 //    }
-    @MessageMapping("/message")
+    @MessageMapping("/message/{roomId}")
     public void sendMessage(MessageRequest messageDTO) throws Exception{
         Message message = messageService.insertData(messageDTO);
 //        template.convertAndSend("/sub/message/" + message.getRoomId(), message);
-        template.convertAndSend("/sub/message", message);
+        template.convertAndSend("/sub/message/" + message.getRoomId(), message);
     }
 //    @GetMapping(path = "/message")
 //    public ResponseEntity<List<Message>> getMessages(@RequestBody String roomId, @RequestBody Timestamp sendDate) {
