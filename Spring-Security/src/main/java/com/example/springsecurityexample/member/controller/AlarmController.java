@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlarmController {
     private final AlarmService alarmService;
+    private final AlarmEventPublisher alarmEventPublisher;
 
     @PostMapping("/alarms")
     @ApiOperation("알람 생성")
@@ -63,4 +65,9 @@ public class AlarmController {
         return new ResponseEntity<>(numAlarms, HttpStatus.OK);
     }
 
+    @GetMapping("/alarms/stream")
+    @ApiOperation("실시간 SSE 알림")
+    public SseEmitter streamAlarms() {
+        return alarmEventPublisher.createEmitter();
+    }
 }

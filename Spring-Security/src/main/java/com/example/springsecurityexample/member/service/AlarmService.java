@@ -1,11 +1,13 @@
 package com.example.springsecurityexample.member.service;
 
 import com.example.springsecurityexample.member.Alarm;
+import com.example.springsecurityexample.member.controller.AlarmCreatedEvent;
 import com.example.springsecurityexample.member.dto.AlarmRequest;
 import com.example.springsecurityexample.member.dto.AlarmResponse;
 import com.example.springsecurityexample.member.repository.AlarmRepository;
 import com.example.springsecurityexample.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final MemberRepository memberRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public AlarmResponse createAlarm(AlarmRequest alarmRequest) {
@@ -33,6 +36,9 @@ public class AlarmService {
         alarm.setRead(false);
 
         Alarm createdAlarm = alarmRepository.save(alarm);
+
+        // 알람 생성 후 이벤트 발행
+        eventPublisher.publishEvent(new AlarmCreatedEvent(this, convertToResponse(createdAlarm)));
 
         return convertToResponse(createdAlarm);
     }
