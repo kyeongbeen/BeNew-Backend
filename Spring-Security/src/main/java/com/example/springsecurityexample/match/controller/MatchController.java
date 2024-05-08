@@ -4,17 +4,13 @@ import com.example.springsecurityexample.match.*;
 import com.example.springsecurityexample.match.Error;
 import com.example.springsecurityexample.match.dto.*;
 import com.example.springsecurityexample.match.service.MatchService;
-import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.controller.ProfileController;
-import com.example.springsecurityexample.security.CustomUserDetails;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,74 +27,29 @@ public class MatchController {
 
     private final MatchService matchService;
 
-    // 사용 중인 user Id 찾아오기.
-//    Long GetLoginUserId () {
-//        Long id;
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication != null) {
-//            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//            Member member = userDetails.getMember();
-//            id = member.getId();
-//            return id;
-//        }
-//        else return null;
-//    }
-
     @ApiOperation(
-            value = "매칭 생성"
+            value = "매칭 생성 (input : matchRequestDto { uid1 (필수), technologyId(선택) })"
             , notes = "json을 통해 받은 사용자의 정보를 통해 매칭을 생성한다.\n")
     @PostMapping("/post/match")
-    public ResponseEntity<MatchResource> CreateMatch(@RequestBody MatchRequestDto matchRequestDto) {
-        //TODO : 에러 관련 코드 추가(하는 중)
-        //TODO : 필터링 기능 (후 순위)
+    public ResponseEntity<List<Match>> CreateMatch(@RequestBody MatchRequestDto matchRequestDto) {
 
         //요청 body가 비어있는 경우
         if (matchRequestDto.getUid1() == null) { //uid1 body에 담아서 요청했는지 확인
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
-        //다른 유저의 id로 매칭을 만드려고 하는 경우
-//        if (!Objects.equals(matchRequestDto.getUid1(), GetLoginUserId())) {
-//            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-//        }
-
-
-        //매칭 생성
-        Match match = matchService.RecommendUserWithRetry(matchRequestDto, 5, 1000);
-        //Match matchv1 = matchService.RecommendUser(matchRequestDto);
+        List<Match> matches = matchService.RecommendUsers(matchRequestDto);
 
         //매치 생성 실패
-        if (match == null || match.getMatchId() == null) {
+        if (matches == null || matches.get(0).getMatchId() == null) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
-        // @@@@@@@@@@ 동기화 도전
 
-        match.update();
-
-        // @@@@@@@@@@ 동기화 도전
-
-        //링크 추가
-        var selfLinkBuilder = linkTo(methodOn(MatchController.class).CreateMatch(matchRequestDto));
-        URI createdUri = selfLinkBuilder.toUri();
-        var getUserMatchesLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatch(match.getUid1()));
-        var getUserMatchesByProfileLinkBuilder = linkTo(methodOn(MatchController.class).ReadMatchingPartnerProfile(match.getUid1()));
-        var updateDeleteLinkBuilder = linkTo(methodOn(MatchController.class).DeleteMatch(match.getMatchId()));
-        var updateLikeLinkBuilder = linkTo(methodOn(MatchController.class).LikeMatch(match.getMatchId()));
-        var updateDisLikeLinkBuilder = linkTo(methodOn(MatchController.class).DislikeMatch(match.getMatchId()));
-
-        MatchResource matchResource = new MatchResource(match);
-        matchResource.add(selfLinkBuilder.withSelfRel());
-        //matchResource.add(getUserMatchesLinkBuilder.withRel("Read match list(매칭 조회 - 반환형 : match list, get)"));
-        //matchResource.add(getUserMatchesByProfileLinkBuilder.withRel("Read matching partner profile card list(매칭 상대방 조회 - 반환형 : profile list, get)"));
-        //matchResource.add(updateDeleteLinkBuilder.withRel("Delete match(매칭 삭제, delete)"));
-        matchResource.add(updateLikeLinkBuilder.withRel("Request match(매칭 요청, patch)"));
-        matchResource.add(updateDisLikeLinkBuilder.withRel("Reject match(매칭 거절, patch)"));
+        //matches.update(); 이건 서비스에서 (팀 여부 업데이트)
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .location(createdUri)
-                .body(matchResource);
+                .body(matches);
     }
 
     @ApiOperation(
@@ -120,6 +71,7 @@ public class MatchController {
         matchResource.add(GetRequesterInformation.withRel("get requester's information(매칭 요청자 정보, get)"));
         matchResource.add(FalseMatchLinkBuilder.withRel("false match(매칭 실패, patch)"));
         matchResource.add(SuccessMatchLinkBuilder.withRel("success match(매칭 성공, patch)"));
+
 
         return ResponseEntity
                 .status(match == null ? HttpStatus.NO_CONTENT : HttpStatus.OK)

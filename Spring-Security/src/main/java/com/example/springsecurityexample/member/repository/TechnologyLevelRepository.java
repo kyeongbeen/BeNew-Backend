@@ -19,4 +19,5 @@ public interface TechnologyLevelRepository extends JpaRepository<TechnologyLevel
 
     Optional<TechnologyLevel> findByProfileAndTechnology(Profile profile, Technology technology);
 
+
 }

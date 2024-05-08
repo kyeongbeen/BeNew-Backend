@@ -1,9 +1,11 @@
 package com.example.springsecurityexample.member;
 
+import com.example.springsecurityexample.team.Team;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +29,14 @@ public class Profile {
     @OneToOne
     @JoinColumn(name = "member_id") // Member 엔티티와의 관계를 매핑
     private Member member;
+
+    // 매칭을 위해 추가함
+    @OneToMany(mappedBy = "profile")
+    private List<TechnologyLevel> technologyLevel;
+
+    //team과 profile을 n:n 매핑
+    @ManyToMany(mappedBy = "profiles")
+    private List<Team> teams;
 
     public Profile(Member member) {
         this.member = member;

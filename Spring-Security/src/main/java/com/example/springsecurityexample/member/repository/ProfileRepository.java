@@ -3,6 +3,7 @@ package com.example.springsecurityexample.member.repository;
 import com.example.springsecurityexample.match.Match;
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
+import com.example.springsecurityexample.team.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,5 +19,8 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     //매치를 위한 점수
     List<Profile> findByPeerBetween(int minValue, int maxValue);
     Optional<Profile> findByMember_Id(Long uid);
+
+    List<Profile> findByTechnologyLevel_Technology_IdInAndPeerBetween(List<Long> technologyIds, int minValue, int maxValue);
+
 
 }
