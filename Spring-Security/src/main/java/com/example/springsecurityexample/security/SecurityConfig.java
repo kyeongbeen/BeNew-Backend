@@ -61,7 +61,7 @@ public class SecurityConfig {
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
 //<<<<<<< HEAD
-                .antMatchers("/register", "/login").permitAll()
+                .antMatchers("/register", "/login", "/logout", "/check/**").permitAll()
                 .antMatchers("/ws/chat/**").permitAll()
 //=======
                 //swagger 추가

@@ -49,8 +49,8 @@ public class ProfileService {
         if(profileRequest.getPhoto() !=null){
             profile.setPhoto(profileRequest.getPhoto());
         }
-        if( profileRequest.getPhoto() != null){
-            profile.setPeer(profileRequest.getPeer());
+        if (profileRequest.getPeer() != 0) {
+            profile.setPeer(profileRequest.getPeer());  // peer 값 업데이트
         }
         if (profileRequest.isProjectExperience()){
             profile.setProjectExperience(true);

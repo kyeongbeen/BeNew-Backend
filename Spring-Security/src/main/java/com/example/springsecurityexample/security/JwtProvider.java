@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class JwtProvider {
     private String salt;
 
     private Key secretKey;
+
+    // 로그아웃 요청 된 토큰들임.
+    private List<String> blacklistedTokens = new ArrayList<>();
 
     // 토큰 만료시간 : 30일
     private final long exp = 1000L * 60 * 60 * 24 * 30;
@@ -71,6 +75,9 @@ public class JwtProvider {
 
     // 토큰 검증
     public boolean validateToken(String token) {
+        if (isTokenInBlacklist(token)) {
+            return false;
+        }
         try {
             // Bearer 검증
             if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
@@ -84,5 +91,13 @@ public class JwtProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public void invalidateToken(String token) { //토큰 무효화
+        blacklistedTokens.add(token);
+    }
+
+    public boolean isTokenInBlacklist(String token) {
+        return blacklistedTokens.contains(token);
     }
 }

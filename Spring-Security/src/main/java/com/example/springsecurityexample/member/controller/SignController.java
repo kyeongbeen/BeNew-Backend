@@ -6,6 +6,7 @@ import com.example.springsecurityexample.member.service.SignService;
 import com.example.springsecurityexample.member.dto.SignRequest;
 import com.example.springsecurityexample.member.dto.SignResponse;
 import com.example.springsecurityexample.member.repository.MemberRepository;
+import com.example.springsecurityexample.security.JwtProvider;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -21,11 +24,23 @@ public class SignController {
 
     private final MemberRepository memberRepository;
     private final SignService memberService;
+    private final JwtProvider jwtProvider;
 
     @PostMapping(value = "/login")
     @ApiOperation("로그인")
     public ResponseEntity<SignResponse> login(@RequestBody SignRequest request) throws Exception {
         return new ResponseEntity<>(memberService.login(request), HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    @ApiOperation("로그아웃")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = jwtProvider.resolveToken(request);
+        if (token != null && jwtProvider.validateToken(token)) {
+            jwtProvider.invalidateToken(token);
+            return ResponseEntity.ok("로그아웃 되었습니다.");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 토큰입니다.");
     }
 
     @PostMapping(value = "/register")

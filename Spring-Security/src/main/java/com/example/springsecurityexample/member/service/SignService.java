@@ -9,6 +9,7 @@ import com.example.springsecurityexample.member.dto.SignResponse;
 import com.example.springsecurityexample.member.repository.MemberRepository;
 import com.example.springsecurityexample.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -55,6 +57,15 @@ public class SignService {
     }
     @Transactional
     public boolean register(SignRequest request) throws Exception {
+        if (memberRepository.findByAccount(request.getAccount()).isPresent()) {
+            throw new DataIntegrityViolationException("이미 존재하는 계정입니다.");
+        }
+        if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new DataIntegrityViolationException("이미 등록된 이메일입니다.");
+        }
+        if (memberRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new DataIntegrityViolationException("이미 등록된 전화번호입니다.");
+        }
         try {
             Member member = Member.builder()
                     .account(request.getAccount())
@@ -75,9 +86,11 @@ public class SignService {
             Profile profile = Profile.builder()
                     .id(member.getId())
                     .member(member)
+                    .peer(50)
                     .build();
             profileService.createProfile(member.getId(), profile);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("잘못된 요청입니다.");
         }
