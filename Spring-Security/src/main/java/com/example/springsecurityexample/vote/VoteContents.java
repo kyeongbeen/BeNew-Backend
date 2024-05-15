@@ -22,7 +22,7 @@ public class VoteContents {
     private int voteId;
 
     @Column (nullable = false)
-    private String contents;
+    private String content;
 
     @Column (nullable = false)
     private int voteNum;

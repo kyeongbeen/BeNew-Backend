@@ -9,8 +9,6 @@ import lombok.Setter;
 @Builder
 @Getter @Setter
 public class ChatroomCreateRequest {
-    private int user1;
-    private int user2;
-    private String user1Name;
-    private String user2Name;
+    private int userId;
+    private String userName;
 }

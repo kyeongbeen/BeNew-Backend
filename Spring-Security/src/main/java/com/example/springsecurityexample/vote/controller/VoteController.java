@@ -34,9 +34,18 @@ public class VoteController {
         return new ResponseEntity<>(createdVote, HttpStatus.CREATED);
     }
 
+//    @PatchMapping("/end/{voteId}")
+//    @ApiOperation("투표종료")
+//    public boolean endVote(@PathVariable int voteId) {
+//        return voteService.endVote(voteId);
+//    }
+
     @PatchMapping("/end/{voteId}")
     @ApiOperation("투표종료")
-    public boolean endVote(@PathVariable int voteId) {
-        return voteService.endVote(voteId);
+    public ResponseEntity<Vote> endVote(@PathVariable int voteId) {
+        return new ResponseEntity<>(voteService.endVote(voteId), HttpStatus.ACCEPTED);
     }
+
+
+
 }

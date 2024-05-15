@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,4 +19,5 @@ public class VoteDTO {
     private LocalDate endDate;
     private boolean voteStatus;
     private int totalVoteNumber;
+    private List<String> contents;
 }

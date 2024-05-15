@@ -34,4 +34,6 @@ public class Vote {
     @Column(nullable = false)
     private int totalVoteNumber;
 
+
+
 }

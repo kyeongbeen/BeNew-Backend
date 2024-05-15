@@ -8,6 +8,11 @@ import java.util.List;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
+
+    // VoteParticipantsRepository
+    // VoteContentsRepositoy
+    // 위 두 repo 만들어야 함
+
     List<Vote> findVotesByRoomId(String roomId);
     Vote findVotesByVoteId(int voteId);
 }

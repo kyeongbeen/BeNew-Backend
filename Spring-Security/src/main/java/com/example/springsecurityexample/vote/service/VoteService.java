@@ -20,6 +20,7 @@ public class VoteService {
 // TODO createVote에 총 투표인원까지 build해서 파싱
 
     private final VoteRepository voteRepository;
+    private final VoteContentsService voteContentsService;
     private final JdbcTemplate jdbcTemplate;
 
     public List<Vote> getAllVotes(String roomId) {
@@ -37,6 +38,9 @@ public class VoteService {
                 .totalVoteNumber(countVoteParticipantsNumber(voteDTO.getRoomId()))
                 .build();
         voteRepository.save(vote);
+
+        voteContentsService.voteContentCreator(voteDTO);
+
         return voteDTO;
     }
 
@@ -46,9 +50,9 @@ public class VoteService {
         return jdbcTemplate.queryForObject(insertUserQuery, param, Integer.class);
     }
 
-    public boolean endVote(int voteId) {
+    public Vote endVote(int voteId) {
         Vote vote = voteRepository.findVotesByVoteId(voteId);
         vote.setVoteStatus(false);
-        return vote.isVoteStatus();
+        return voteRepository.findVotesByVoteId(voteId);
     }
 }

@@ -1,9 +1,6 @@
 package com.example.springsecurityexample.Chat.Service;
 
-import com.example.springsecurityexample.Chat.DTO.ChatroomCreateRequest;
-import com.example.springsecurityexample.Chat.DTO.ChatroomInviteRequest;
-import com.example.springsecurityexample.Chat.DTO.ChatroomLeaveRequest;
-import com.example.springsecurityexample.Chat.DTO.ChatroomNameRequest;
+import com.example.springsecurityexample.Chat.DTO.*;
 import com.example.springsecurityexample.Chat.Entity.Chatroom;
 import com.example.springsecurityexample.Chat.Entity.ChatroomParticipants;
 import com.example.springsecurityexample.Chat.Repository.ChatroomParticipantsRepository;
@@ -15,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -29,24 +27,23 @@ public class ChatroomService {
         return chatroomParticipantsRepository.findAllByUserId(userId);
     }
 
-    public Chatroom createRoom(ChatroomCreateRequest request) {
+    public Chatroom createRoom(List<ChatroomCreateRequest> request) {
         String roomId = UUID.randomUUID().toString();
-        String roomName = new StringBuilder().append(request.getUser1Name()).append(", ").append(request.getUser2Name()).append("님의 채팅방").toString();
+        String roomName = new StringBuilder().append(request.get(0).getUserName()).append("님 외 ").append(request.size()).append("명의 채팅방").toString();
         Timestamp createDate = Timestamp.valueOf(LocalDateTime.now());
 
         Chatroom chatroom = new Chatroom(roomId, roomName, createDate);
 
         chatroomRepository.save(chatroom);
-        chatroomParticipantsRepository.save(new ChatroomParticipants().builder()
-                .userId(request.getUser1())
-                .roomId(roomId)
-                .enterDate(createDate)
-                .build());
-        chatroomParticipantsRepository.save(new ChatroomParticipants().builder()
-                .userId(request.getUser2())
-                .roomId(roomId)
-                .enterDate(createDate)
-                .build());
+
+        for (var i :
+                request) {
+            chatroomParticipantsRepository.save(new ChatroomParticipants().builder()
+                            .userId(i.getUserId())
+                            .roomId(roomId)
+                            .enterDate(createDate)
+                    .build());
+        }
         return chatroom;
     }
 

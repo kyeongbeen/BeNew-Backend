@@ -11,10 +11,7 @@ import java.sql.Timestamp;
 @Builder
 @Getter
 @Setter
-public class MessageRequest {
-    private String roomId;
-    private int sender;
-    private String senderName;
-    private String message;
-    private Timestamp sendDate;
+public class MessageGetRequest {
+    String roomId;
+    Timestamp sendDate;
 }
