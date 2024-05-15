@@ -1,4 +1,4 @@
-package com.example.springsecurityexample.team;
+package com.example.springsecurityexample.project;
 
 import com.example.springsecurityexample.member.Profile;
 import lombok.*;
@@ -14,22 +14,23 @@ import java.util.List;
 @Setter
 @EqualsAndHashCode(of = "teamId")
 @Entity
-public class Team {
+public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long teamId;
+    private Long projectId;
 
 
-    private String teamName;
+    private String projectName;
     private LocalDate creationDate;
     private int numberOfMembers;
-    private String teamDescription;
+    private String projectOneLineIntroduction;
+    private String projectIntroduction;
     private boolean projectStarted;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "team_member_profiles",
-            joinColumns = @JoinColumn(name = "team_id"),
+            name = "project_member_profiles",
+            joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private List<Profile> profiles;

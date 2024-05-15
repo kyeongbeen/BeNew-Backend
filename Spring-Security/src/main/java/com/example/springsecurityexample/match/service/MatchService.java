@@ -49,22 +49,28 @@ public class MatchService {
 
         // 유저 피어점수
         int userPeer = userInfo.get().getPeer();
+        int rangeVar = 10;
 
-        for (int i = 0; i < 10; i++) {
+        //만약 전체 프로필이 10개 이상 없으면? 어쩌지?
+        for (int i = 0; i < 10; i++){
+
+            if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100)
+            {
+                //refresh
+                DeleteRejectedMatches();
+                DeleteFalseMatches();
+            }
 
             List<Profile> profilesInRange;
 
+            // peer 점수와 기술 스택을 통해 추천할 프로필 list 만들기
             if (matchRequestDto.getTechnologyId() != null) {
                 List<Long> technologyIds = matchRequestDto.getTechnologyId();
                 profilesInRange = profileRepository.findByTechnologyLevel_Technology_IdInAndPeerBetween(
-                        technologyIds, userPeer - 5, userPeer + 5);
+                        technologyIds, userPeer - rangeVar, userPeer + rangeVar);
             }
             else
-                profilesInRange = profileRepository.findByPeerBetween(userPeer - 5, userPeer + 5);
-
-            if (profilesInRange.isEmpty()) {
-                break;
-            }
+                profilesInRange = profileRepository.findByPeerBetween(userPeer - rangeVar, userPeer + rangeVar);
 
             // 이미 매칭된 프로필 및 앱 사용자의 프로필 거르기
             List<Profile> filteredProfiles = profilesInRange.stream()
@@ -74,14 +80,17 @@ public class MatchService {
                     )
                     .collect(Collectors.toList());
 
-            // 필터링 후 남은 프로필 카드가 없으면 매칭 실패, 이거 굳이 컨티뉴 해야함?
-            if (filteredProfiles.isEmpty()) {
-                matches.add(Match.builder().build()); // 빈 매칭 추가
-                continue;
+            // refresh 진행 후에도 추천할 프로필이 없으면 break
+            if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100 && filteredProfiles.isEmpty())
+            {
+                return Collections.emptyList();
             }
 
-            // DTO를 match 엔티티로 변경
-            Match match = modelMapper.map(matchRequestDto, Match.class);
+            // 필터링 후 남은 프로필 카드가 없으면 범위 늘리기
+            if (filteredProfiles.isEmpty()) {
+                rangeVar += 10;
+                continue;
+            }
 
             // 필터링 된 프로필 카드 중 랜덤한 프로필 카드를 가져옴
             int memberCount = filteredProfiles.size();
@@ -89,6 +98,8 @@ public class MatchService {
             Profile recommendedProfile = filteredProfiles.get(randomNum);
 
             // 매칭 정보 삽입
+            Match match = new Match();
+            match.setUid1(matchRequestDto.getUid1());
             match.setProfile(recommendedProfile);
             match.setMatchingDate(LocalDateTime.now());
             match.setMatchSuccess(MatchSuccessType.PENDING);
@@ -216,11 +227,12 @@ public class MatchService {
     }
 
     //매칭 요청
-    public Match LikeMatchStatusById (Long id){
+    public Match LikeMatchStatusById (Long id, MatchProjectDto projectId){
         Optional<Match> matchOptional = matchRepository.findById(id);
 
         if (matchOptional.isPresent()) {
             Match match = matchOptional.get();
+            match.setProjectId(projectId.getProjectId());
             match.setMatchingRequest(MatchRequestType.REQUESTED);
             matchRepository.save(match);
             return match; // 변경된 Match 객체를 반환

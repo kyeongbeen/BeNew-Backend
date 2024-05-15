@@ -1,13 +1,10 @@
 package com.example.springsecurityexample.match;
 
 import com.example.springsecurityexample.member.Profile;
-import com.example.springsecurityexample.member.TechnologyLevel;
-import com.example.springsecurityexample.team.Team;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -22,7 +19,7 @@ public class Match {
     @Id @GeneratedValue
     private Long matchId;
 
-    private Long uid1TeamId;
+    private Long projectId;
 
     private Long uid1;
 

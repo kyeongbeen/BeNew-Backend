@@ -1,9 +1,7 @@
 package com.example.springsecurityexample.member.repository;
 
-import com.example.springsecurityexample.match.Match;
 import com.example.springsecurityexample.member.Member;
 import com.example.springsecurityexample.member.Profile;
-import com.example.springsecurityexample.team.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

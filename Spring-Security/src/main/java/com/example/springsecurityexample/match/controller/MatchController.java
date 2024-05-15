@@ -152,8 +152,8 @@ public class MatchController {
             , notes = "URI를 통해 받은 매칭 ID로 매칭 요청 여부를 저장하는 칼럼을 REQUESTED로 변경" +
             "\n매칭 요청 시 사용 권장.")
     @PatchMapping("/patch/match/like/{matchId}")
-    public ResponseEntity<Match> LikeMatch(@PathVariable Long matchId){
-        Match match = matchService.LikeMatchStatusById(matchId);
+    public ResponseEntity<Match> LikeMatch(@PathVariable Long matchId, @RequestBody MatchProjectDto projectId){
+        Match match = matchService.LikeMatchStatusById(matchId, projectId);
         return ResponseEntity
                 .status(
                         match != null
