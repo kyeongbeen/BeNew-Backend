@@ -1,10 +1,11 @@
 package com.example.springsecurityexample.match.service;
 
-import com.example.springsecurityexample.match.Match;
 import com.example.springsecurityexample.match.Error;
+import com.example.springsecurityexample.match.Match;
 import com.example.springsecurityexample.match.MatchRequestType;
 import com.example.springsecurityexample.match.MatchSuccessType;
-import com.example.springsecurityexample.match.dto.*;
+import com.example.springsecurityexample.match.dto.MatchProjectDto;
+import com.example.springsecurityexample.match.dto.MatchRequestDto;
 import com.example.springsecurityexample.match.repository.MatchRepository;
 import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.repository.ProfileRepository;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -30,8 +30,21 @@ public class MatchService {
     private final ProfileRepository profileRepository;
     private static final Logger logger = LoggerFactory.getLogger(MatchService.class);
 
-    //매칭 생성
+    public List<Profile> getProfilesInRange(Integer userPeer, Integer rangeVar, List<Long> technologyId) {
+        List<Profile> profilesInRange;
 
+        // peer 점수와 기술 스택을 통해 추천할 프로필 list 만들기
+        if (technologyId != null && !technologyId.isEmpty()) {
+            profilesInRange = profileRepository.findByTechnologyLevel_Technology_IdInAndPeerBetween(
+                    technologyId, userPeer - rangeVar, userPeer + rangeVar);
+        } else {
+            profilesInRange = profileRepository.findByPeerBetween(userPeer - rangeVar, userPeer + rangeVar);
+        }
+
+        return profilesInRange;
+    }
+
+    //매칭 생성
     public List<Match> RecommendUsers(MatchRequestDto matchRequestDto) {
         //반환할 프로필 리스트 (10개 ~ 0개)
         List<Match> matches = new ArrayList<>();
@@ -49,41 +62,38 @@ public class MatchService {
 
         // 유저 피어점수
         int userPeer = userInfo.get().getPeer();
+
+        // 범위 선언을 밖으로 빼서 반복횟수 줄이기
         int rangeVar = 10;
 
         //만약 전체 프로필이 10개 이상 없으면? 어쩌지?
-        for (int i = 0; i < 10; i++){
+        while (matches.size() != 10){
 
-            if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100)
-            {
-                //refresh
-                DeleteRejectedMatches();
-                DeleteFalseMatches();
+            List<Profile> profilesInRange = getProfilesInRange(userPeer, rangeVar, matchRequestDto.getTechnologyId());
+
+            List<Profile> filteredProfiles;
+
+            //2번정도 실패했으면 중복 허용
+            if (rangeVar <30) {
+                // 이미 매칭된 프로필 및 앱 사용자의 프로필 거르기
+                filteredProfiles = profilesInRange.stream()
+                        // *** isPresent() 절대 수정 금지 ***
+                        .filter(profile ->
+                                !matchRepository.existsByUid1AndProfile(matchRequestDto.getUid1(), profile)
+                                        && !Objects.equals(profile, userProfile)
+                        )
+                        .collect(Collectors.toList());
+            }
+            else {
+                filteredProfiles = profilesInRange.stream()
+                        .filter(profile -> !Objects.equals(profile, userProfile))
+                        .collect(Collectors.toList());
             }
 
-            List<Profile> profilesInRange;
-
-            // peer 점수와 기술 스택을 통해 추천할 프로필 list 만들기
-            if (matchRequestDto.getTechnologyId() != null) {
-                List<Long> technologyIds = matchRequestDto.getTechnologyId();
-                profilesInRange = profileRepository.findByTechnologyLevel_Technology_IdInAndPeerBetween(
-                        technologyIds, userPeer - rangeVar, userPeer + rangeVar);
-            }
-            else
-                profilesInRange = profileRepository.findByPeerBetween(userPeer - rangeVar, userPeer + rangeVar);
-
-            // 이미 매칭된 프로필 및 앱 사용자의 프로필 거르기
-            List<Profile> filteredProfiles = profilesInRange.stream()
-                    .filter(profile ->
-                            !matchRepository.findByUid1AndProfile(matchRequestDto.getUid1(), profile).isPresent()
-                                    && !Objects.equals(profile, userProfile)
-                    )
-                    .collect(Collectors.toList());
-
-            // refresh 진행 후에도 추천할 프로필이 없으면 break
+            // 만약 피어점수 최대 범위를 넘어도 추천할 프로필이 10개 밑이면 그냥 반환
             if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100 && filteredProfiles.isEmpty())
             {
-                return Collections.emptyList();
+                return matches;
             }
 
             // 필터링 후 남은 프로필 카드가 없으면 범위 늘리기

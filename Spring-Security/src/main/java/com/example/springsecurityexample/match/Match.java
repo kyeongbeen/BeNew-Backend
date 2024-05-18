@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter @EqualsAndHashCode(of = "matchId")
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"uid1", "uid2"})
-})
+//@Table(uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"uid1", "uid2"})
+//})
 public class Match {
     @Id @GeneratedValue
     private Long matchId;

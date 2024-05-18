@@ -1,7 +1,9 @@
 package com.example.springsecurityexample.project.controller;
 
 import com.example.springsecurityexample.project.Project;
+import com.example.springsecurityexample.project.dto.ProjectDeadlineRequestDto;
 import com.example.springsecurityexample.project.dto.ProjectRequestDto;
+import com.example.springsecurityexample.project.dto.ProjectResponseDto;
 import com.example.springsecurityexample.project.service.ProjectService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -87,13 +89,27 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.RemoveProjectMember(projectId, userId), HttpStatus.OK);
     }
 
+    // 프로젝트 시작
     @ApiOperation(
             value = "프로젝트 시작",
             notes = "프로젝트를 시작합니다."
     )
     @PatchMapping("/patch/project/start/{projectId}")
-    public ResponseEntity<Project> StartProject(@PathVariable Long projectId) {
-        return new ResponseEntity<>(projectService.StartProject(projectId), HttpStatus.OK);
+    public ResponseEntity<Project> StartProject(
+            @PathVariable Long projectId,
+            @RequestBody ProjectDeadlineRequestDto projectDeadlineDto
+    ) {
+        return new ResponseEntity<>(projectService.StartProject(projectId, projectDeadlineDto), HttpStatus.OK);
+    }
+
+    // 메인 화면에 올릴 프로젝트 정보
+    @ApiOperation(
+            value = "메인 페이지 프로젝트"
+            , notes = " 유저가 진행중인 프로젝트 중 마감일이 가장 가까운 프로젝트의 이름과 진행도를 반환 \n")
+    @GetMapping("/get/project/main-page/{userId}")
+    public ResponseEntity<ProjectResponseDto> GetProjectClosestToDeadline(@PathVariable Long userId) {
+        // 사용자의 ID를 가져와 해당 사용자가 속한 팀 조회
+        return new ResponseEntity<>(projectService.GetProjectClosestToDeadline(userId), HttpStatus.OK);
     }
 
     // 팀 상세 정보

@@ -23,5 +23,5 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     void deleteByMatchSuccess(MatchSuccessType matchSuccessType);
 
     //    @Lock(LockModeType.PESSIMISTIC_READ)
-    Optional<Match> findByUid1AndProfile(Long uid1, Profile profile);
+    boolean existsByUid1AndProfile(Long uid1, Profile profile);
 }

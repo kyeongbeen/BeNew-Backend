@@ -26,6 +26,8 @@ public class Project {
     private String projectOneLineIntroduction;
     private String projectIntroduction;
     private boolean projectStarted;
+    private LocalDate projectStartDate;
+    private LocalDate projectDeadlineDate;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
