@@ -1,5 +1,6 @@
 package com.example.springsecurityexample.project.controller;
 
+import com.example.springsecurityexample.Chat.Service.ChatroomService;
 import com.example.springsecurityexample.project.Project;
 import com.example.springsecurityexample.project.dto.ProjectDeadlineRequestDto;
 import com.example.springsecurityexample.project.dto.ProjectRequestDto;
@@ -21,6 +22,7 @@ public class ProjectController {
 
 
     private final ProjectService projectService;
+    private final ChatroomService chatroomService;
 
     @ApiOperation(
             value = "프로젝트 생성"
@@ -28,6 +30,7 @@ public class ProjectController {
     @PostMapping("/post/project")
     public ResponseEntity<Project> RegisterProject(@RequestBody ProjectRequestDto projectRequestDto) {
         Project project = projectService.RegisterProject(projectRequestDto);
+        chatroomService.registerProject(project.getProjectId(), projectRequestDto.getChatroomId());
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
@@ -99,7 +102,9 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestBody ProjectDeadlineRequestDto projectDeadlineDto
     ) {
-        return new ResponseEntity<>(projectService.StartProject(projectId, projectDeadlineDto), HttpStatus.OK);
+        Project project = projectService.StartProject(projectId, projectDeadlineDto);
+        chatroomService.startProject(project.getProjectId());
+        return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
     // 메인 화면에 올릴 프로젝트 정보

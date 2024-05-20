@@ -25,7 +25,7 @@ public class ChatroomController {
     @ApiOperation(
             value = "채팅방 조회"
             , notes = "현재 내가 속해있는 채팅방 전체를 조회한다.\n")
-    public ResponseEntity<List<ChatroomParticipants>> findRooms(@PathVariable int userId) {
+    public ResponseEntity<List<Chatroom>> findRooms(@PathVariable int userId) {
         return new ResponseEntity<>(chatroomService.findRooms(userId), HttpStatus.OK);
     }
 

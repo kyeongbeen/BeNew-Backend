@@ -14,4 +14,5 @@ public class ProjectRequestDto {
     private String projectName;
     private String projectOneLineIntroduction;
     private String projectIntroduction;
+    private String chatroomId;
 }
