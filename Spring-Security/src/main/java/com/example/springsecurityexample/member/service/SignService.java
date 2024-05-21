@@ -57,7 +57,7 @@ public class SignService {
     }
     @Transactional
     public boolean register(SignRequest request) throws Exception {
-        if (memberRepository.findByAccount(request.getAccount()).isPresent()) {
+        /*if (memberRepository.findByAccount(request.getAccount()).isPresent()) {
             throw new DataIntegrityViolationException("이미 존재하는 계정입니다.");
         }
         if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -65,7 +65,7 @@ public class SignService {
         }
         if (memberRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
             throw new DataIntegrityViolationException("이미 등록된 전화번호입니다.");
-        }
+        }*/
         try {
             Member member = Member.builder()
                     .account(request.getAccount())

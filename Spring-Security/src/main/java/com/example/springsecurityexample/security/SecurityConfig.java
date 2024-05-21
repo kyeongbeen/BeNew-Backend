@@ -74,6 +74,7 @@ public class SecurityConfig {
                 .antMatchers("/alarms/**").hasRole("USER")
                 .antMatchers("/chat/**").hasRole("USER")
                 .antMatchers("/vote/**").hasRole("USER")
+                .antMatchers("/friend/**").hasRole("USER")
                 .antMatchers("/technologies/**").hasRole("USER")
                 .antMatchers("/technology-levels/**").hasRole("USER")
                 .antMatchers("/todo/**").hasRole("USER")
