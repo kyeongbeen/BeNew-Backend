@@ -30,6 +30,13 @@ public class FriendController {
         return new ResponseEntity<>("친구 요청을 수락했습니다.", HttpStatus.OK);
     }
 
+    @DeleteMapping("/friend/delete")
+    @ApiOperation("친구 삭제")
+    public ResponseEntity<String> deleteFriend(@RequestParam Long memberId, @RequestParam Long friendId) {
+        friendService.deleteFriend(memberId, friendId);
+        return new ResponseEntity<>("친구를 삭제했습니다.", HttpStatus.OK);
+    }
+
     @GetMapping("/friend/list")
     @ApiOperation("친구 목록 조회")
     public ResponseEntity<List<Friend>> getFriends(@RequestParam Long memberId) {

@@ -35,6 +35,30 @@ public class FriendService {
         friendRepository.save(friendRelation);
     }
 
+    public void deleteFriend(Long memberId, Long friendId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
+        Member friend = memberRepository.findById(friendId)
+                .orElseThrow(() -> new EntityNotFoundException("Friend not found"));
+
+        // 멤버가 프렌드를 친구로 추가한 관계 찾기
+        Friend friendRelation = friendRepository.findByMemberAndFriend(member, friend)
+                .orElse(null);  // 관계가 없다면 null 반환
+
+        // 프렌드가 멤버를 친구로 추가한 관계 찾기
+        Friend reverseFriendRelation = friendRepository.findByMemberAndFriend(friend, member)
+                .orElse(null);  // 관계가 없다면 null 반환
+
+        // 찾은 관계가 있으면 삭제
+        if (friendRelation != null) {
+            friendRepository.delete(friendRelation);
+        }
+        if (reverseFriendRelation != null) {
+            friendRepository.delete(reverseFriendRelation);
+        }
+    }
+
+
     public void acceptFriendRequest(Long memberId, Long friendId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("Member not found"));
