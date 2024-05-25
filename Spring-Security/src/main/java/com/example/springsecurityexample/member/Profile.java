@@ -24,6 +24,7 @@ public class Profile {
     private boolean projectExperience;
     private String personalLink;
     private String photo;
+    private String promise;
     private int peer=50;
 
     @OneToOne
