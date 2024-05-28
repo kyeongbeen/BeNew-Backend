@@ -65,9 +65,21 @@ public class AlarmController {
         return new ResponseEntity<>(numAlarms, HttpStatus.OK);
     }
 
-    @GetMapping("/alarms/stream")
-    @ApiOperation("실시간 SSE 알림")
-    public SseEmitter streamAlarms() {
-        return alarmEventPublisher.createEmitter();
+
+    @GetMapping("/alarms/stream/{userId}")
+    @ApiOperation("sse로 특정사용자에게 알람 전송")
+    public SseEmitter streamAlarms(@PathVariable Long userId) {
+        return alarmEventPublisher.createEmitter(userId);
+    }
+
+    @GetMapping("/alarms/stream/broadcast")
+    @ApiOperation("sse로 브로드캐스트(전체 사용자에게 전송)")
+    public SseEmitter streamBroadcastAlarms() {
+        return alarmEventPublisher.createBroadcastEmitter();
     }
 }
+
+
+
+
+
