@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(of = "teamId")
+@EqualsAndHashCode(of = "projectId")
 @Entity
 public class Project {
     @Id
