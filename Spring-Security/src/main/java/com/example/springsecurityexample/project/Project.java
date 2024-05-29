@@ -23,11 +23,13 @@ public class Project {
     private String projectName;
     private LocalDate creationDate;
     private int numberOfMembers;
+    private Long projectManager;
     private String projectOneLineIntroduction;
     private String projectIntroduction;
     private boolean projectStarted;
     private LocalDate projectStartDate;
     private LocalDate projectDeadlineDate;
+    private Long views = 0L;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjectRequestDto {
     private Long userId;
+    private Long projectManager;
     private String projectName;
     private String projectOneLineIntroduction;
     private String projectIntroduction;

@@ -8,6 +8,7 @@ import com.example.springsecurityexample.project.dto.ProjectResponseDto;
 import com.example.springsecurityexample.project.service.ProjectService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ProjectController {
     private final ChatroomService chatroomService;
 
     @ApiOperation(
-            value = "프로젝트 생성"
+            value = "프로젝트 생성 (!! 추가됨 - projectManager : 방장의 id를 저장하는 값)"
             , notes = " api 문서 링크 : \n")
     @PostMapping("/post/project")
     public ResponseEntity<Project> RegisterProject(@RequestBody ProjectRequestDto projectRequestDto) {
@@ -62,6 +63,16 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.CheckProjectNameDuplicate(projectName), HttpStatus.OK);
     }
 
+    // 프로젝트 방장 확인
+    @ApiOperation(
+            value = "project 방장 확인(true : 방장임 / false : 방장 아님)",
+            notes = "project 방장 확인"
+    )
+    @GetMapping("/get/project/check/project-manager/{projectId}/{projectManager}")
+    public ResponseEntity<Boolean> CheckProjectManager(@PathVariable Long projectId, @PathVariable Long projectManager) {
+        return new ResponseEntity<>(projectService.CheckProjectManager(projectId, projectManager), HttpStatus.OK);
+    }
+
     // 팀 정보 수정
     @ApiOperation(
             value = "팀 정보 수정",
@@ -80,6 +91,40 @@ public class ProjectController {
     @GetMapping("/get/projects")
     public ResponseEntity<List<Project>> GetAllProjects() {
         return new ResponseEntity<>(projectService.GetAllProjects(), HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "생성일 기준 내림차순으로 정렬된 프로젝트 가져오기",
+            notes = "page : 페이지 (0 부터 시작) / size : 가져올 프로젝트의 수."
+    )
+    @GetMapping("/get/projects/recent")
+    public ResponseEntity<Page<Project>> GetRecentProjects(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<Project> projects = projectService.GetRecentProjects(page, size);
+        if (projects.hasContent()) {
+            return new ResponseEntity<>(projects, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @ApiOperation(
+            value = "조회수 기준 인기 프로젝트 조회",
+            notes = "page : 페이지 (0 부터 시작) / size : 가져올 프로젝트의 수."
+    )
+    @GetMapping("/get/projects/popular")
+    public ResponseEntity<Page<Project>> GetPopularityProjects(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        Page<Project> projects = projectService.GetPopularityProjects(page, size);
+        if (projects.hasContent()) {
+            return new ResponseEntity<>(projects, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
     }
 
     // 프로젝트 맴버 강퇴
@@ -114,7 +159,12 @@ public class ProjectController {
     @GetMapping("/get/project/main-page/{userId}")
     public ResponseEntity<ProjectResponseDto> GetProjectClosestToDeadline(@PathVariable Long userId) {
         // 사용자의 ID를 가져와 해당 사용자가 속한 팀 조회
-        return new ResponseEntity<>(projectService.GetProjectClosestToDeadline(userId), HttpStatus.OK);
+        ProjectResponseDto projectResponseDto = projectService.GetProjectClosestToDeadline(userId);
+
+        if (projectResponseDto == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 No Content 응답
+        }
+        return new ResponseEntity<>(projectResponseDto, HttpStatus.OK);
     }
 
     // 팀 상세 정보

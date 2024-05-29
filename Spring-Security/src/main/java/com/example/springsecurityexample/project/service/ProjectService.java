@@ -8,13 +8,20 @@ import com.example.springsecurityexample.project.dto.ProjectRequestDto;
 import com.example.springsecurityexample.project.dto.ProjectResponseDto;
 import com.example.springsecurityexample.project.error.RequestException;
 import com.example.springsecurityexample.project.repository.ProjectRepository;
+import com.example.springsecurityexample.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 
 @Transactional
 @Service
@@ -32,6 +39,15 @@ public class ProjectService {
                 ;
     }
 
+    // 추후 프로젝트 관리 권한을 위해 사용 예정
+    private Long getCurrentUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return ((CustomUserDetails) principal).getMember().getId();
+        }
+        return null;  // 인증되지 않은 경우
+    }
+
     public Project RegisterProject(ProjectRequestDto projectRequestDto) {
         if (HasEmptyFields(projectRequestDto))
             throw new RequestException("projectRequestDto의 필드값이 하나 이상 비어있음");
@@ -43,10 +59,15 @@ public class ProjectService {
             throw new RequestException("projectRequestDto의 userId 필드값과 일치하는 사용자가 없음");
         }
 
+        if (projectRequestDto.getProjectManager() == null){
+            projectRequestDto.setProjectManager(projectRequestDto.getUserId());
+        }
+
         Project project = Project.builder()
                 .projectName(projectRequestDto.getProjectName())
                 .creationDate(LocalDate.now())
                 .numberOfMembers(1)
+                .projectManager(projectRequestDto.getProjectManager())
                 .projectIntroduction(projectRequestDto.getProjectIntroduction())
                 .projectOneLineIntroduction(projectRequestDto.getProjectOneLineIntroduction())
                 .projectStarted(false)
@@ -108,6 +129,15 @@ public class ProjectService {
         return projectRepository.existsByProjectName(projectName);
     }
 
+    public Boolean CheckProjectManager(Long projectId, Long projectManager) {
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null) {
+            throw new RequestException("URI의 projectId와 일치하는 프로젝트가 없음");
+        }
+        return Objects.equals(project.getProjectManager(), projectManager);
+    }
+
+
     public Project UpdateProjectInfo(Long projectId, ProjectRequestDto projectRequestDto) {
         Project project = projectRepository.findById(projectId).orElse(null);
         if (project == null) {
@@ -116,12 +146,16 @@ public class ProjectService {
         String projectName = projectRequestDto.getProjectName();
         String projectOneLineIntroduction = projectRequestDto.getProjectOneLineIntroduction();
         String projectIntroduction = projectRequestDto.getProjectIntroduction();
+        Long projectManager = projectRequestDto.getProjectManager();
 
-        if (projectName == null && projectOneLineIntroduction == null && projectIntroduction == null)
+        if (projectName == null && projectOneLineIntroduction == null && projectIntroduction == null && projectManager == null)
             return project;
 
         if (projectName != null) {
             project.setProjectName(projectName);
+        }
+        if (projectManager != null) {
+            project.setProjectManager(projectManager);
         }
         if (projectOneLineIntroduction != null) {
             project.setProjectOneLineIntroduction(projectOneLineIntroduction);
@@ -133,7 +167,6 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    //추후 정렬이 필요 (최신순, 인기순)
     public List<Project> GetAllProjects() {
         return projectRepository.findAll();
     }
@@ -173,6 +206,12 @@ public class ProjectService {
         if (project == null) {
             throw new RequestException("URI의 projectId와 일치하는 프로젝트가 없음");
         }
+
+        if (project.getViews() == null)
+            project.setViews(0L);
+
+        project.setViews(project.getViews() + 1); // 조회수 증가
+        projectRepository.save(project); // 변경사항 저장
 
         return project;
     }
@@ -219,7 +258,20 @@ public class ProjectService {
         }
 
         List<Project> orderByDeadlineProjects = projectRepository.findProjectsWithDeadlineAfterTodayByProfileId(userId, LocalDate.now());
+
+        if (orderByDeadlineProjects.isEmpty()) {
+            List<Project> unstartedProjects = projectRepository.findUnstartedProjectsOrderedByCreationDate();
+            if (!unstartedProjects.isEmpty()) {
+                Project project = unstartedProjects.get(0);
+                return ProjectResponseDto.builder()
+                        .projectName(project.getProjectName())
+                        .projectRateOfProgress(-1)
+                        .build();
+            }else return null; // 204 No Content 응답을 위한 null 반환
+        }
+
         Project project = orderByDeadlineProjects.get(0);
+
 
         // 프로젝트 전체 일자
         long totalDays = ChronoUnit.DAYS.between(
@@ -249,6 +301,31 @@ public class ProjectService {
                 .projectName(project.getProjectName())
                 .projectRateOfProgress(progressPercent)
                 .build();
+    }
+
+
+    public Page<Project> GetRecentProjects(int page, int size) {
+        if (page < 0) {
+            throw new RequestException("page 가 0보다 크거나 같아야 함.");
+        }
+        if (size <= 0) {
+            throw new RequestException("Page size 가 0보다 커야함.");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creationDate"));
+        return projectRepository.findAllByOrderByCreationDateDesc(pageable);
+    }
+
+    public Page<Project> GetPopularityProjects(int page, int size) {
+        if (page < 0) {
+            throw new RequestException("page 가 0보다 크거나 같아야 함.");
+        }
+        if (size <= 0) {
+            throw new RequestException("Page size 가 0보다 커야함.");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "views"));
+        return projectRepository.findAllByOrderByViewsDesc(pageable);
     }
 
 //    public List<Project> GetAppliedProjects(Long userId) {
