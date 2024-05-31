@@ -1,16 +1,14 @@
 package com.example.springsecurityexample.Chat.Entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Getter @Builder
+@Getter @Setter
+@Builder
 @NoArgsConstructor @AllArgsConstructor
 public class ChatroomParticipants {
     @Id
@@ -19,4 +17,6 @@ public class ChatroomParticipants {
     private int userId;
     private String roomId;
     private Timestamp enterDate;
+    @Column
+    private boolean isReviewed = true;
 }

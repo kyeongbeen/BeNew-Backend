@@ -1,5 +1,6 @@
 package com.example.springsecurityexample.project.repository;
 
+import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.project.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,14 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findAllByProfiles_Id(Long userId);
+
+
+    @Query("select p " +
+            "from Profile p " +
+            "where p.id in(select pj.projectId " +
+                            "from Project pj " +
+                            "where pj.projectId = :projectId)")
+    List<Profile> findMembers(@Param("projectId") Long projectId);
 
     boolean existsByProjectName(String teamName);
 

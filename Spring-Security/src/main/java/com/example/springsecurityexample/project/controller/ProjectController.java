@@ -1,6 +1,8 @@
 package com.example.springsecurityexample.project.controller;
 
 import com.example.springsecurityexample.Chat.Service.ChatroomService;
+import com.example.springsecurityexample.PeerReview.Service.PeerReviewService;
+import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.project.Project;
 import com.example.springsecurityexample.project.dto.ProjectDeadlineRequestDto;
 import com.example.springsecurityexample.project.dto.ProjectRequestDto;
@@ -24,6 +26,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final ChatroomService chatroomService;
+    private final PeerReviewService peerReviewService;
 
     @ApiOperation(
             value = "프로젝트 생성 (!! 추가됨 - projectManager : 방장의 id를 저장하는 값)"
@@ -177,6 +180,16 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.GetProjectDetails(projectId), HttpStatus.OK);
     }
 
+    // 프로젝트 참여 멤버 조회
+    @ApiOperation(
+            value = "프로젝트 참여 멤버 조회",
+            notes = "특정 프로젝트에 참여하는 멤버들을 조회합니다."
+    )
+    @GetMapping("/get/project/{projectId}/members")
+    public ResponseEntity<List<Profile>> getMembers(@PathVariable Long projectId) {
+        return new ResponseEntity<>(projectService.getMembers(projectId), HttpStatus.OK);
+    }
+
     // 팀 해체 (프로젝트 종료)
     @ApiOperation(
             value = "팀 해체 (프로젝트 종료)",
@@ -184,6 +197,7 @@ public class ProjectController {
     )
     @DeleteMapping("/delete/project/{projectId}/disband")
     public ResponseEntity<String> DisbandProject(@PathVariable Long projectId) {
+        peerReviewService.insertPeerReviewData(projectId);
         return new ResponseEntity<>(projectService.DisbandProject(projectId), HttpStatus.OK);
     }
 

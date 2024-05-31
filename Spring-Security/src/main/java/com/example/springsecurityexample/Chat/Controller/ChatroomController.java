@@ -29,6 +29,16 @@ public class ChatroomController {
         return new ResponseEntity<>(chatroomService.findRooms(userId), HttpStatus.OK);
     }
 
+    @GetMapping(path = "/room/member/{roomId}")
+    @ApiOperation(
+            value = "채팅방에 속한 유저들 조회",
+            notes = "채팅방에 현재 있는 유저들을 조회한다.\n" +
+                    "A 채팅방에 김, 이, 박 세명의 유저가 있으면 세명의 정보를 알려준다."
+    )
+    public ResponseEntity<List<ChatroomParticipants>> findMembers(@PathVariable String roomId) {
+        return new ResponseEntity<>(chatroomService.findMembers(roomId), HttpStatus.OK);
+    }
+
     @PostMapping(path = "/new")
     @ApiOperation(
             value = "채팅방 생성"

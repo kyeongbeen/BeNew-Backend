@@ -1,5 +1,6 @@
 package com.example.springsecurityexample.project.service;
 
+import com.example.springsecurityexample.PeerReview.Service.PeerReviewService;
 import com.example.springsecurityexample.member.Profile;
 import com.example.springsecurityexample.member.repository.ProfileRepository;
 import com.example.springsecurityexample.project.Project;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -29,6 +33,8 @@ import java.util.Objects;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProfileRepository profileRepository;
+    private final PeerReviewService peerReviewService;
+    private final JdbcTemplate jdbcTemplate;
 
     public boolean HasEmptyFields(ProjectRequestDto projectRequestDto) {
         // 하나라도 null이면 true
@@ -221,7 +227,7 @@ public class ProjectService {
         if (project == null) {
             throw new RequestException("URI의 projectId와 일치하는 프로젝트가 없음");
         }
-
+        peerReviewService.insertPeerReviewData(projectId);
         // 팀을 삭제
         projectRepository.delete(project);
         return "팀 해제 성공";
@@ -328,7 +334,7 @@ public class ProjectService {
         return projectRepository.findAllByOrderByViewsDesc(pageable);
     }
 
-//    public List<Project> GetAppliedProjects(Long userId) {
-//        return null;
-//    }
+    public List<Profile> getMembers(Long projectId) {
+        return projectRepository.findMembers(projectId);
+    }
 }
