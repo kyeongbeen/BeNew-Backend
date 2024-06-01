@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -13,5 +14,5 @@ import java.sql.Timestamp;
 @Setter
 public class MessageGetRequest {
     String roomId;
-    Timestamp sendDate;
+    LocalDate sendDate;
 }

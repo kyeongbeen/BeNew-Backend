@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -19,7 +20,7 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
 
-    public List<Message> getMessages(String roomId, Timestamp sendDate) {
+    public List<Message> getMessages(String roomId, LocalDate sendDate) {
         return messageRepository.findMessagesByRoomIdAndSendDate(roomId, sendDate);
     }
 
