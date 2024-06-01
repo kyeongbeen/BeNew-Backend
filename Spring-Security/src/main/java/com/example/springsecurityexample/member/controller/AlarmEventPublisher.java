@@ -37,6 +37,7 @@ public class AlarmEventPublisher {
                 emitter.send(SseEmitter.event().name("alarm").data(event.getAlarmResponse(), MediaType.APPLICATION_JSON));
             } catch (IOException e) {
                 deadEmitters.add(emitter);
+                emitter.completeWithError(e);
             }
         });
         emitters.removeAll(deadEmitters);
@@ -46,6 +47,11 @@ public class AlarmEventPublisher {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         setupEmitter(emitter, userId);
         userEmitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>()).add(emitter);
+        try {
+            emitter.send(SseEmitter.event().name("INIT").data("Connection established"));
+        } catch (IOException e) {
+            emitter.completeWithError(e);
+        }
         return emitter;
     }
 
@@ -59,14 +65,14 @@ public class AlarmEventPublisher {
     private void setupEmitter(SseEmitter emitter, Long userId) {
         emitter.onCompletion(() -> removeEmitter(emitter, userId));
         emitter.onTimeout(() -> removeEmitter(emitter, userId));
-        emitter.onError((e) -> removeEmitter(emitter, userId));
+        emitter.onError((e) -> {
+            System.out.println("Error in streaming: " + e);
+            removeEmitter(emitter, userId);
+        });
     }
 
     private void removeEmitter(SseEmitter emitter, Long userId) {
-        if (userId != null) {
-            userEmitters.getOrDefault(userId, new CopyOnWriteArrayList<>()).remove(emitter);
-        } else {
-            broadcastEmitters.remove(emitter);
-        }
+        List<SseEmitter> emitters = (userId != null) ? userEmitters.getOrDefault(userId, new CopyOnWriteArrayList<>()) : broadcastEmitters;
+        emitters.remove(emitter);
     }
 }

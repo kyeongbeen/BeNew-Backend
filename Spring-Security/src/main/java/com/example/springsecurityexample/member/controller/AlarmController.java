@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -68,8 +69,19 @@ public class AlarmController {
 
     @GetMapping("/alarms/stream/{userId}")
     @ApiOperation("sse로 특정사용자에게 알람 전송")
-    public SseEmitter streamAlarms(@PathVariable Long userId) {
-        return alarmEventPublisher.createEmitter(userId);
+    public ResponseEntity<SseEmitter> streamAlarms(@PathVariable Long userId, HttpServletRequest request) {
+        // 권한 확인 로직 (여기서는 예시로 간단하게 처리)
+        if (!isAuthorized(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        SseEmitter emitter = alarmEventPublisher.createEmitter(userId);
+        // 여기서는 HTTP 200 OK 상태 코드를 명시적으로 반환합니다.
+        return ResponseEntity.ok().body(emitter);
+    }
+    private boolean isAuthorized(HttpServletRequest request) {
+        // 권한 확인 로직 구현
+        return true; // or false
     }
 
     @GetMapping("/alarms/stream/broadcast")
