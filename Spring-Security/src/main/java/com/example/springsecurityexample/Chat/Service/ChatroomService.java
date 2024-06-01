@@ -49,7 +49,7 @@ public class ChatroomService {
 
     public Chatroom createRoom(List<ChatroomCreateRequest> request) {
         String roomId = UUID.randomUUID().toString();
-        String roomName = new StringBuilder().append(request.get(0).getUserName()).append("님 외 ").append(request.size()).append("명의 채팅방").toString();
+        String roomName = new StringBuilder().append(request.get(0).getUserName()).append("님 외 ").append(request.size() - 1).append("명의 채팅방").toString();
         Timestamp createDate = Timestamp.valueOf(LocalDateTime.now());
 
         Chatroom chatroom = new Chatroom().builder()
