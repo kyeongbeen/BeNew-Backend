@@ -63,11 +63,13 @@ public class SecurityConfig {
 //<<<<<<< HEAD
                 .antMatchers("/register", "/login", "/logout", "/check/**").permitAll()
                 .antMatchers("/ws/chat/**").permitAll()
+                .antMatchers("/stompChat/**", "/sub/**", "/pub/**").permitAll()
 //=======
                 //swagger 추가
                 .antMatchers("/register", "/login","/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
 //>>>>>>> origin/main
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/message/**").hasRole("USER")
                 .antMatchers("/user/**").hasRole("USER")
                 .antMatchers("/profile/**").hasRole("USER")
                 .antMatchers("/api/**").hasRole("USER")
@@ -78,6 +80,7 @@ public class SecurityConfig {
                 .antMatchers("/technologies/**").hasRole("USER")
                 .antMatchers("/technology-levels/**").hasRole("USER")
                 .antMatchers("/todo/**").hasRole("USER")
+                .antMatchers("peer-review/**").hasRole("USER")
 
                 .anyRequest().denyAll()
                 .and()
