@@ -64,6 +64,7 @@ public class SecurityConfig {
                 .antMatchers("/register", "/login", "/logout", "/check/**").permitAll()
                 .antMatchers("/ws/chat/**").permitAll()
 //=======
+                .antMatchers("/stompChat/**").permitAll()  // WebSocket 엔드포인트 허용
                 //swagger 추가
                 .antMatchers("/register", "/login","/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
 //>>>>>>> origin/main
@@ -121,6 +122,7 @@ public class SecurityConfig {
                 "/swagger-ui.html",
                 "/webjars/**",
                 "/ws/chat/**",
+                "/stompChat/**",  // WebSocket 엔드포인트 무시
                 /* swagger v3 */
                 "/v3/api-docs/**",
                 "/swagger-ui/**");
