@@ -67,7 +67,6 @@ public class ChatroomService {
                             .userId(i.getUserId())
                             .roomId(roomId)
                             .enterDate(createDate)
-                            .isReviewed(true)
                     .build());
         }
         return chatroom;
@@ -79,7 +78,6 @@ public class ChatroomService {
                 .userId(request.getInvitedUser())
                 .roomId(request.getRoomId())
                 .enterDate(invitedDate)
-                .isReviewed(true)
                 .build();
         chatroomParticipantsRepository.save(participants);
         return participants;

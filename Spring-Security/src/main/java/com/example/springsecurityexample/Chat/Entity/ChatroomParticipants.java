@@ -17,6 +17,4 @@ public class ChatroomParticipants {
     private int userId;
     private String roomId;
     private Timestamp enterDate;
-    @Column
-    private boolean isReviewed = true;
 }
