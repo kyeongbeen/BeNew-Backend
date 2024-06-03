@@ -97,6 +97,7 @@ public class ChatroomService {
         chatroomParticipantsRepository.deleteByRoomIdAndUserId(request.getRoomId(), request.getUserId());
     }
 
+
     // JPA Dirty Checking
     public void registerProject(long projectId, String chatRoomId) {
         Chatroom chatroom = chatroomRepository.findByRoomId(chatRoomId);

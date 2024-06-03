@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
 
+import javax.persistence.Column;
 import java.util.List;
 
 @Data
@@ -13,5 +14,7 @@ import java.util.List;
 @Getter  @Setter
 public class PeerReviewRequestDTO {
     Long projectId;
+    @Column
+    Long userId;
     List<PeerReviewIndividualScore> scores;
 }

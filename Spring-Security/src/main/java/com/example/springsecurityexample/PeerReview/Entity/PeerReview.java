@@ -2,10 +2,7 @@ package com.example.springsecurityexample.PeerReview.Entity;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @Setter @Getter @Builder
@@ -18,4 +15,6 @@ public class PeerReview {
     private int peerReviewScore;
     private int maxReviewerNumber;
     private int currentReviewerNumber;
+    @Column
+    private boolean isReviewed;
 }

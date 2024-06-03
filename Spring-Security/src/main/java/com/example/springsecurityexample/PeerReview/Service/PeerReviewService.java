@@ -32,7 +32,6 @@ public class PeerReviewService {
 
         List<Long> membersId = peerReviewRepository.findByProjectId(projectId);
         List<PeerReview> peerReviews = new ArrayList<>();
-        List<ChatroomParticipants> chatroomParticipants = chatroomParticipantsRepository.findMembers(projectId);
 
         for (var i :
                 membersId) {
@@ -41,14 +40,10 @@ public class PeerReviewService {
                     .peerReviewScore(0)
                     .maxReviewerNumber(membersId.size() - 1)
                     .userId(i)
+                    .isReviewed(false)
                     .projectId(projectId)
                     .build();
             peerReviews.add(peerReview);
-        }
-
-        for (var i :
-                chatroomParticipants) {
-            i.setReviewed(false);
         }
         peerReviewRepository.saveAll(peerReviews);
     }
@@ -65,6 +60,9 @@ public class PeerReviewService {
                     applyScoreFromProfileTable(peerReview.getUserId(), peerReview.getPeerReviewScore());
                 }
             }
+            PeerReview peerReview = peerReviewRepository.findByUserId(peerReviewRequestDTO.getUserId());
+            peerReview.setReviewed(true);
+
         } catch (Exception e) {
             throw new Exception("잘못된 요청입니다.");
         }

@@ -30,7 +30,7 @@ public class MessageService {
                 .sender(data.getSender())
                 .senderName(data.getSenderName())
                 .message(data.getMessage())
-                .sendDate(LocalDate.now())
+                .sendDate(data.getSendDate())
                 .build();
         messageRepository.save(message);
         return message;

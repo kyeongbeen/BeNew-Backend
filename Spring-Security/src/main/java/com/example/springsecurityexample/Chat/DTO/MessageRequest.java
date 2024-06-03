@@ -4,8 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -16,5 +15,5 @@ public class MessageRequest {
     private int sender;
     private String senderName;
     private String message;
-    private Timestamp sendDate;
+    private LocalDate sendDate;
 }

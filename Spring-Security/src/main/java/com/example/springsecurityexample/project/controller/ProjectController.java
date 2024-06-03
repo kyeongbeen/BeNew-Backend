@@ -34,7 +34,7 @@ public class ProjectController {
     @PostMapping("/post/project")
     public ResponseEntity<Project> RegisterProject(@RequestBody ProjectRequestDto projectRequestDto) {
         Project project = projectService.RegisterProject(projectRequestDto);
-        chatroomService.registerProject(project.getProjectId(), projectRequestDto.getChatroomId());
+//        chatroomService.registerProject(project.getProjectId(), projectRequestDto.getChatroomId());
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 

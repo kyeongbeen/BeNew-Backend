@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface PeerReviewRepository extends JpaRepository<PeerReview, Long> {
 
+    PeerReview findByUserId(Long userId);
+
     List<Long> findByProjectId(Long projectId);
 
     @Query("select p " +
