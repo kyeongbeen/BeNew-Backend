@@ -77,4 +77,7 @@ public class PeerReviewService {
         chatroomParticipants.setReviewed(true);
     }
 
+    public List<PeerReview> findPeerReviewStatus(Long userId) {
+        return peerReviewRepository.findAllPeerReview(userId);
+    }
 }
