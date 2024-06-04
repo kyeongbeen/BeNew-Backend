@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -39,8 +40,10 @@ public class MessageController {
 //        return new ResponseEntity<>(messageService.getMessages(messageGetRequest.getRoomId(), messageGetRequest.getSendDate()), HttpStatus.OK);
 //    }
 
-    public ResponseEntity<List<Message>> getMessages(@PathVariable String roomId, @PathVariable LocalDate sendDate) {
-        return new ResponseEntity<>(messageService.getMessages(roomId, sendDate), HttpStatus.OK);
+    public ResponseEntity<List<Message>> getMessages(@PathVariable("roomId") String roomId, @PathVariable("sendDate") String sendDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(sendDate, formatter);
+        return new ResponseEntity<>(messageService.getMessages(roomId, date), HttpStatus.OK);
     }
 
 }
