@@ -72,7 +72,7 @@ public class PeerReviewService {
 
     private void applyScoreFromProfileTable(Long userId, int peerReviewScore) {
         Optional<Profile> profile = profileRepository.findByMember_Id(userId);
-        profile.get().setPeer(profile.get().getPeer()*4/5 + peerReviewScore/5);
+        profile.ifPresent(value -> value.setPeer(value.getPeer() * 4 / 5 + peerReviewScore / 5));
     }
 
     public List<PeerReview> findPeerReviewStatus(Long userId) {

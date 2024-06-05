@@ -5,6 +5,7 @@ import com.example.springsecurityexample.Chat.Entity.Chatroom;
 import com.example.springsecurityexample.Chat.Entity.ChatroomParticipants;
 import com.example.springsecurityexample.Chat.Service.ChatroomService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -75,4 +76,32 @@ public class ChatroomController {
     public void leaveRoom(@RequestBody ChatroomLeaveRequest request) {
         chatroomService.leaveRoom(request);
     }
+
+    @PatchMapping("/room/project/bind")
+    @ApiOperation(value = "채팅방과 프로젝트를 바인딩한다.",
+                    notes = "어떤 채팅방에서 어떤 프로젝트가 진행되는지 볼 수 있으면 좋을 것 같음")
+    public ResponseEntity<Chatroom> bindChatroomAndProject(@RequestBody ChatroomBindingRequest chatroomBindingRequest) {
+        return new ResponseEntity<>(chatroomService.registerProject(chatroomBindingRequest.getProjectId(), chatroomBindingRequest.getRoomId()), HttpStatus.ACCEPTED);
+    }
+
+    @PatchMapping("/room/project/{projectId}/start")
+    @ApiOperation(value = "프로젝트의 상태를 시작으로 변경한다.",
+                    notes = "종료날짜를 입력하지 않으면 프로젝트가 시작된것이 아니기 때문에 추가함")
+    public ResponseEntity<Chatroom> startChatroom(@PathVariable Long projectId) {
+        return new ResponseEntity<>(chatroomService.startProject(projectId), HttpStatus.ACCEPTED);
+    }
+
+    @PatchMapping("/room/project/{projectId}/end")
+    @ApiOperation(value = "프로젝트의 상태를 종료로 변경한다.",
+                    notes = "동료평가를 진행하기 위해서 상태를 변경하는 것")
+    public ResponseEntity<Chatroom> endProject(@PathVariable Long projectId) {
+        return new ResponseEntity<>(chatroomService.endProject(projectId), HttpStatus.ACCEPTED);
+    }
+
+    @PatchMapping("/room/project/{projectId}/delete")
+    @ApiOperation(value = "채팅방과 프로젝트의 바인딩된 정보를 삭제한다.")
+    public ResponseEntity<Chatroom> deleteProject(@PathVariable Long projectId) {
+        return new ResponseEntity<>(chatroomService.deleteProject(projectId), HttpStatus.ACCEPTED);
+    }
+
 }

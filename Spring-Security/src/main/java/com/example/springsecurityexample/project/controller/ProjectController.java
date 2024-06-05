@@ -25,7 +25,6 @@ public class ProjectController {
 
 
     private final ProjectService projectService;
-    private final ChatroomService chatroomService;
     private final PeerReviewService peerReviewService;
 
     @ApiOperation(
@@ -34,7 +33,6 @@ public class ProjectController {
     @PostMapping("/post/project")
     public ResponseEntity<Project> RegisterProject(@RequestBody ProjectRequestDto projectRequestDto) {
         Project project = projectService.RegisterProject(projectRequestDto);
-//        chatroomService.registerProject(project.getProjectId(), projectRequestDto.getChatroomId());
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
@@ -151,7 +149,6 @@ public class ProjectController {
             @RequestBody ProjectDeadlineRequestDto projectDeadlineDto
     ) {
         Project project = projectService.StartProject(projectId, projectDeadlineDto);
-        chatroomService.startProject(project.getProjectId());
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 

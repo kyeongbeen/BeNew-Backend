@@ -7,6 +7,7 @@ import com.example.springsecurityexample.Chat.Repository.ChatroomParticipantsRep
 import com.example.springsecurityexample.Chat.Repository.ChatroomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,17 +98,31 @@ public class ChatroomService {
 
 
     // JPA Dirty Checking
-    public void registerProject(long projectId, String chatRoomId) {
+    public Chatroom registerProject(long projectId, String chatRoomId) {
         Chatroom chatroom = chatroomRepository.findByRoomId(chatRoomId);
         chatroom.setProjectId(projectId);
+        return chatroom;
     }
 
-    public void startProject(Long projectId) {
+    public Chatroom startProject(Long projectId) {
         Chatroom chatroom = chatroomRepository.findByProjectId(projectId);
         chatroom.setIsProjectStarted(1);
+        return chatroom;
     }
 
     public List<ChatroomParticipants> findMembers(String roomId) {
         return chatroomParticipantsRepository.findAllByRoomId(roomId);
+    }
+
+    public Chatroom endProject(Long projectId) {
+        Chatroom chatroom = chatroomRepository.findByProjectId(projectId);
+        chatroom.setIsProjectStarted(0);
+        return chatroom;
+    }
+
+    public Chatroom deleteProject(Long projectId) {
+        Chatroom chatroom = chatroomRepository.findByProjectId(projectId);
+        chatroom.setProjectId(-1L);
+        return chatroom;
     }
 }
