@@ -44,15 +44,14 @@ public class MatchService {
         return profilesInRange;
     }
 
-    //매칭 생성
     public List<Match> RecommendUsers(MatchRequestDto matchRequestDto) {
-        //반환할 프로필 리스트 (10개 ~ 0개)
+        // 반환할 프로필 리스트 (10개 ~ 0개)
         List<Match> matches = new ArrayList<>();
 
-        //사용자의 프로필 카드를 Optional로 가져오기
+        // 사용자의 프로필 카드를 Optional로 가져오기
         Optional<Profile> userInfo = profileRepository.findById(matchRequestDto.getUid1());
 
-        //Optional에서 Profile로 변경
+        // Optional에서 Profile로 변경
         Profile userProfile;
         if (userInfo.isPresent()) {
             userProfile = userInfo.get();
@@ -60,53 +59,20 @@ public class MatchService {
             return Collections.emptyList(); // 프로필이 없으면 빈 리스트 반환
         }
 
-        // 유저 피어점수
-        int userPeer = userInfo.get().getPeer();
+        // 모든 프로필 가져오기 (자신 제외)
+        List<Profile> allProfiles = profileRepository.findAll().stream()
+                .filter(profile -> !profile.equals(userProfile))
+                .collect(Collectors.toList());
 
-        // 범위 선언을 밖으로 빼서 반복횟수 줄이기
-        int rangeVar = 10;
+        // 프로필을 랜덤하게 섞기
+        Collections.shuffle(allProfiles);
 
-        //만약 전체 프로필이 10개 이상 없으면? 어쩌지?
-        while (matches.size() != 10){
+        // 추천할 프로필 리스트
+        List<Profile> recommendedProfiles = allProfiles.stream()
+                .limit(10) // 최대 10개
+                .collect(Collectors.toList());
 
-            List<Profile> profilesInRange = getProfilesInRange(userPeer, rangeVar, matchRequestDto.getTechnologyId());
-
-            List<Profile> filteredProfiles;
-
-            //2번정도 실패했으면 중복 허용
-            if (rangeVar <30) {
-                // 이미 매칭된 프로필 및 앱 사용자의 프로필 거르기
-                filteredProfiles = profilesInRange.stream()
-                        // *** isPresent() 절대 수정 금지 ***
-                        .filter(profile ->
-                                !matchRepository.existsByUid1AndProfile(matchRequestDto.getUid1(), profile)
-                                        && !Objects.equals(profile, userProfile)
-                        )
-                        .collect(Collectors.toList());
-            }
-            else {
-                filteredProfiles = profilesInRange.stream()
-                        .filter(profile -> !Objects.equals(profile, userProfile))
-                        .collect(Collectors.toList());
-            }
-
-            // 만약 피어점수 최대 범위를 넘어도 추천할 프로필이 10개 밑이면 그냥 반환
-            if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100 && filteredProfiles.isEmpty())
-            {
-                return matches;
-            }
-
-            // 필터링 후 남은 프로필 카드가 없으면 범위 늘리기
-            if (filteredProfiles.isEmpty()) {
-                rangeVar += 10;
-                continue;
-            }
-
-            // 필터링 된 프로필 카드 중 랜덤한 프로필 카드를 가져옴
-            int memberCount = filteredProfiles.size();
-            int randomNum = (int) (Math.random() * memberCount);
-            Profile recommendedProfile = filteredProfiles.get(randomNum);
-
+        for (Profile recommendedProfile : recommendedProfiles) {
             // 매칭 정보 삽입
             Match match = new Match();
             match.setUid1(matchRequestDto.getUid1());
@@ -115,23 +81,13 @@ public class MatchService {
             match.setMatchSuccess(MatchSuccessType.PENDING);
             match.setMatchingRequest(MatchRequestType.PENDING);
             matchRepository.save(match);
-
             matches.add(match);
         }
 
         return matches;
     }
-    /*
-        public Match SelectStudentsWithRange(Profile userProfile // *** ?범위 안 학생 *** ) {
-            // 자기 제외
 
-
-            // 한명 고르기
-            return *** student profile ***;
-        }
-
-        */
-//매칭 조회 (return type : Match)
+    //매칭 조회 (return type : Match)
     public List<Match> GetMatchingList (Long id){
         List<Match> matchList = matchRepository.findAllByUid1(id);
         //TODO : null exception 예외처리
@@ -262,5 +218,84 @@ public class MatchService {
         }
         return null;
     }
+
+
+    //매칭 생성
+//    public List<Match> RecommendUsers(MatchRequestDto matchRequestDto) {
+//        //반환할 프로필 리스트 (10개 ~ 0개)
+//        List<Match> matches = new ArrayList<>();
+//
+//        //사용자의 프로필 카드를 Optional로 가져오기
+//        Optional<Profile> userInfo = profileRepository.findById(matchRequestDto.getUid1());
+//
+//        //Optional에서 Profile로 변경
+//        Profile userProfile;
+//        if (userInfo.isPresent()) {
+//            userProfile = userInfo.get();
+//        } else {
+//            return Collections.emptyList(); // 프로필이 없으면 빈 리스트 반환
+//        }
+//
+//        // 유저 피어점수
+//        int userPeer = userInfo.get().getPeer();
+//
+//        // 범위 선언을 밖으로 빼서 반복횟수 줄이기
+//        int rangeVar = 10;
+//
+//        //만약 전체 프로필이 10개 이상 없으면? 어쩌지?
+//        while (matches.size() != 10){
+//
+//            List<Profile> profilesInRange = getProfilesInRange(userPeer, rangeVar, matchRequestDto.getTechnologyId());
+//
+//            List<Profile> filteredProfiles;
+//
+//            //2번정도 실패했으면 중복 허용
+//            if (rangeVar <30) {
+//                // 이미 매칭된 프로필 및 앱 사용자의 프로필 거르기
+//                filteredProfiles = profilesInRange.stream()
+//                        // *** isPresent() 절대 수정 금지 ***
+//                        .filter(profile ->
+//                                !matchRepository.existsByUid1AndProfile(matchRequestDto.getUid1(), profile)
+//                                        && !Objects.equals(profile, userProfile)
+//                        )
+//                        .collect(Collectors.toList());
+//            }
+//            else {
+//                filteredProfiles = profilesInRange.stream()
+//                        .filter(profile -> !Objects.equals(profile, userProfile))
+//                        .collect(Collectors.toList());
+//            }
+//
+//            // 만약 피어점수 최대 범위를 넘어도 추천할 프로필이 10개 밑이면 그냥 반환
+//            if (userPeer - rangeVar < 0 && userPeer + rangeVar > 100 && filteredProfiles.isEmpty())
+//            {
+//                return matches;
+//            }
+//
+//            // 필터링 후 남은 프로필 카드가 없으면 범위 늘리기
+//            if (filteredProfiles.isEmpty()) {
+//                rangeVar += 10;
+//                continue;
+//            }
+//
+//            // 필터링 된 프로필 카드 중 랜덤한 프로필 카드를 가져옴
+//            int memberCount = filteredProfiles.size();
+//            int randomNum = (int) (Math.random() * memberCount);
+//            Profile recommendedProfile = filteredProfiles.get(randomNum);
+//
+//            // 매칭 정보 삽입
+//            Match match = new Match();
+//            match.setUid1(matchRequestDto.getUid1());
+//            match.setProfile(recommendedProfile);
+//            match.setMatchingDate(LocalDateTime.now());
+//            match.setMatchSuccess(MatchSuccessType.PENDING);
+//            match.setMatchingRequest(MatchRequestType.PENDING);
+//            matchRepository.save(match);
+//
+//            matches.add(match);
+//        }
+//
+//        return matches;
+//    }
 
 }
