@@ -119,16 +119,17 @@ public class MatchController {
             "\n매칭 성사 시 사용.")
     @PatchMapping("/patch/match/success/{sender}/{receiver}")
     public ResponseEntity<Match> SuccessMatch(@PathVariable Long sender, @PathVariable Long receiver){
-        Match match = matchService.UpdateMatchStatusIsSuccess(sender ,receiver);
-        return ResponseEntity
-                .status(
-                        match != null
-                                ? HttpStatus.OK
-                                : HttpStatus.NO_CONTENT
-                )
-                .body(
-                        match
-                );
+//        Match match = matchService.UpdateMatchStatusIsSuccess(sender ,receiver);
+//        return ResponseEntity
+//                .status(
+//                        match != null
+//                                ? HttpStatus.OK
+//                                : HttpStatus.NO_CONTENT
+//                )
+//                .body(
+//                        match
+//                );
+        return ResponseEntity.ok(null);
     }
 
     @ApiOperation(
@@ -137,16 +138,17 @@ public class MatchController {
             "\n매칭 실패 시 사용.")
     @PatchMapping("/patch/match/false/{sender}/{receiver}")
     public ResponseEntity<Match> FalseMatch(@PathVariable Long sender, @PathVariable Long receiver){
-        Match match = matchService.UpdateMatchStatusIsFalse(sender ,receiver);
-        return ResponseEntity
-                .status(
-                        match != null
-                                ? HttpStatus.OK
-                                : HttpStatus.NO_CONTENT
-                )
-                .body(
-                        match
-                );
+//        Match match = matchService.UpdateMatchStatusIsFalse(sender ,receiver);
+//        return ResponseEntity
+//                .status(
+//                        match != null
+//                                ? HttpStatus.OK
+//                                : HttpStatus.NO_CONTENT
+//                )
+//                .body(
+//                        match
+//                );
+        return ResponseEntity.ok(null);
     }
 
     @ApiOperation(
@@ -155,16 +157,17 @@ public class MatchController {
             "\n매칭 요청 시 사용 권장.")
     @PatchMapping("/patch/match/like/{matchId}")
     public ResponseEntity<Match> LikeMatch(@PathVariable Long matchId, @RequestBody MatchProjectDto projectId){
-        Match match = matchService.LikeMatchStatusById(matchId, projectId);
-        return ResponseEntity
-                .status(
-                        match != null
-                                ? HttpStatus.OK
-                                : HttpStatus.NO_CONTENT
-                )
-                .body(
-                        match
-                );
+//        Match match = matchService.LikeMatchStatusById(matchId, projectId);
+//        return ResponseEntity
+//                .status(
+//                        match != null
+//                                ? HttpStatus.OK
+//                                : HttpStatus.NO_CONTENT
+//                )
+//                .body(
+//                        match
+//                );
+        return ResponseEntity.ok(null);
     }
 
     @ApiOperation(
@@ -173,15 +176,16 @@ public class MatchController {
             "\n매칭 거절 시 사용 권장.")
     @PatchMapping("/patch/match/dislike/{matchId}")
     public ResponseEntity<Match> DislikeMatch(@PathVariable Long matchId){
-        Match match = matchService.DislikeMatchStatusById(matchId);
-        return ResponseEntity
-                .status(
-                        match != null
-                                ? HttpStatus.OK
-                                : HttpStatus.NO_CONTENT
-                )
-                .body(
-                        match
-                );
+//        Match match = matchService.DislikeMatchStatusById(matchId);
+//        return ResponseEntity
+//                .status(
+//                        match != null
+//                                ? HttpStatus.OK
+//                                : HttpStatus.NO_CONTENT
+//                )
+//                .body(
+//                        match
+//                );
+        return ResponseEntity.ok(null);
     }
 }
