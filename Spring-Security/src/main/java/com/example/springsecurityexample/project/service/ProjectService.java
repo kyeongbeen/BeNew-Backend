@@ -46,12 +46,28 @@ public class ProjectService {
     }
 
     // 추후 프로젝트 관리 권한을 위해 사용 예정
-    private Long getCurrentUserId() {
+    private Long GetCurrentUserId() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof CustomUserDetails) {
             return ((CustomUserDetails) principal).getMember().getId();
         }
         return null;  // 인증되지 않은 경우
+    }
+
+    // 방장 확인 함수
+    // 프론트한테 말하고 추가
+    private boolean isProjectManager(Long targetId){
+        return Objects.equals(targetId, GetCurrentUserId());
+    }
+
+    // 프로젝트 종료 여부 확인 - 프로젝트 업데이트, 맴버추가에서 사용
+    // 프론트한테 말하고 추가
+    private boolean isProjectFinished(Long projectId){
+        Project project = projectRepository.findById(projectId).orElse(null);
+
+        assert project != null; //null 예외처리
+
+        return project.isProjectFinished();
     }
 
     public Project RegisterProject(ProjectRequestDto projectRequestDto) {
@@ -337,5 +353,17 @@ public class ProjectService {
 
     public List<Profile> getMembers(Long projectId) {
         return projectRepository.findMembers(projectId);
+    }
+
+    public Project FinishProject(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElse(null);
+        if (project == null) {
+            throw new RequestException("URI의 projectId와 일치하는 프로젝트가 없음");
+        }
+        if (!project.isProjectStarted())
+            throw new RequestException("시작하지 않은 프로젝트 입니다.");
+
+        project.setProjectFinished(true);
+        return projectRepository.save(project);
     }
 }

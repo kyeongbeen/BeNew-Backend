@@ -152,6 +152,17 @@ public class ProjectController {
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
+    // 프로젝트 종료
+    @ApiOperation(
+            value = "프로젝트 종료",
+            notes = "프로젝트를 종료합니다."
+    )
+    @PatchMapping("/patch/project/finish/{projectId}")
+    public ResponseEntity<Project> FinishProject(@PathVariable Long projectId) {
+        Project project = projectService.FinishProject(projectId);
+        return new ResponseEntity<>(project, HttpStatus.OK);
+    }
+
     // 메인 화면에 올릴 프로젝트 정보
     @ApiOperation(
             value = "메인 페이지 프로젝트"
@@ -187,10 +198,10 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.getMembers(projectId), HttpStatus.OK);
     }
 
-    // 팀 해체 (프로젝트 종료)
+    // 프로젝트 삭제
     @ApiOperation(
-            value = "팀 해체 (프로젝트 종료)",
-            notes = "특정 팀을 해체하여 프로젝트를 종료합니다."
+            value = "프로젝트 삭제(영구 삭제)",
+            notes = "프로젝트를 DB에서 영구 삭제."
     )
     @DeleteMapping("/delete/project/{projectId}/disband")
     public ResponseEntity<String> DisbandProject(@PathVariable Long projectId) {
